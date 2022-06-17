@@ -169,6 +169,9 @@ class DoxySummaryRenderer:
         return template.render(context)
 
 
+logger = logging.getLogger(__name__)
+
+
 def process_generate_files(app: Sphinx) -> None:
     """
     Process generating rst files.
@@ -208,8 +211,7 @@ def process_generate_files(app: Sphinx) -> None:
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
     scope_arg_re = re.compile(r'^\s+:scope:\s*(.*?)\s*$')
-    regex_item = r'^\s+(~?[_a-zA-Z:][a-zA-Z0-9_:]*)\s+.*?'
-    items_arg_re = re.compile(regex_item)
+    items_arg_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_:]*)\s*.*?')
 
     doxysummaries: List[DoxySummaryEntry] = []
     for filename in genfiles:
@@ -243,6 +245,8 @@ def process_generate_files(app: Sphinx) -> None:
                     m = items_arg_re.match(line)  # read items
                     if m:
                         name = m.group(1).strip()
+                        if name[0] == '~':
+                            name = name[1:]
                         doxysummary_args['name'] = name
                         doxysummaries.append(DoxySummaryEntry(**doxysummary_args))
                         continue
@@ -436,20 +440,37 @@ class DoxySummary(SphinxDirective):
         # get input by lines
         names: List[str] = []
         displaynames: List[str] = []  # name to be displayed to the table
+        alias_regex = r'".+"'
         for x in self.content:
-            if x.strip() and re.search(r'^[a-zA-Z_]', x.strip()[0]):
-                # get fullname
+            # if not empty line
+            if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0]):
                 name = shlex.split(x.strip())[0]
+
+                # check if name starts with a ~
+                ignore_parent: bool = False
+                if name[0] == '~':
+                    ignore_parent = True
+                    name = name[1:]  # remove tilde
+
+                # retrieve the fullname
                 if 'scope' in self.options:
                     name = "::".join([self.options['scope'].strip(), name])
                 names.append(name)
-                # append displayname if alias detected
-                alias_count = len(shlex.split(x.strip()))
-                if alias_count > 2:
-                    raise ValueError(f'Expected 1 alias, got '
-                                     f'{alias_count}.')
-                if alias_count == 2:
-                    displaynames.append(shlex.split(x.strip())[1])
+
+                # append displayname if alias detected -> overwrite effect of ~
+                m = re.search(alias_regex, x.strip())
+                if m:
+                    ignore_parent = False
+                    alias = m.group(0)
+                    alias_count = len(shlex.split(alias))
+                    if alias_count > 1:
+                        raise ValueError(f'Expected 1 alias, got '
+                                         f'{alias_count}.')
+                    if alias_count == 1:
+                        displaynames.append(shlex.split(x.strip())[1])
+                # if alias not detected, display in-scope name
+                elif ignore_parent:
+                    displaynames.append(name.split("::")[-1])
                 else:
                     displaynames.append(name)
 
