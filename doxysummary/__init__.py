@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun 15 21:29:53 2022
-
 @author: quocdang
 """
 
@@ -53,13 +52,112 @@ from lxml import etree
 # =============================================================================
 
 
+def getFisrtChildByTagName(element: etree._Element, tag: str):
+    """
+    Search the first child of XML element by tagname.
+    Parameters
+    ----------
+    element : etree._Element
+        XML element to search.
+    tag : str
+        Name of the tag to search.
+    Returns
+    -------
+    result : List[lxml.etree._Element]
+        List of first-level children with tagname to search for.
+    """
+    result: List[etree._Element] = []
+    for child in element.getchildren():
+        if child.tag == tag:
+            result.append(child)
+    return result
+
+
+def process_generate_xmltree(app: Sphinx) -> None:
+    """
+    Process creating a look-up table for a tree of Doxygen created xml nodes.
+    To be executed at initialization of Sphinx.Builder
+    Parameters
+    ----------
+    app : Sphinx
+        Sphinx.Builder.
+    Raises
+    ------
+    ValueError
+        When behavior of Doxygen created element not as expected.
+    """
+    for xmldir in app.config.doxygen_xml:
+        # retrieve refid from index.xml
+        xmldir = os.path.abspath(xmldir)
+        index_fname = os.path.join(xmldir, 'index.xml')
+        index_file = parse(index_fname)
+        doxygenindex = index_file.firstChild
+
+        # loop over each compound and get its information
+        index_data: Dict[str, List[str]] = {}  # dict of refid -> (name, kind)
+        for compound in doxygenindex.getElementsByTagName('compound'):
+            refid = compound.getAttribute('refid')
+            kind = compound.getAttribute('kind')
+            if not (refid or kind):
+                raise ValueError('Cannot detect the compound')
+            name = compound.firstChild
+            if name.tagName != 'name':
+                raise ValueError('Expected first child of "compound" '
+                                 'tagged "name"')
+            name = name.firstChild.data
+            index_data[refid] = [name, kind]
+
+            compound_kind = kind
+            for member in compound.getElementsByTagName("member"):
+                refid = member.getAttribute('refid')
+                kind = member.getAttribute('kind')
+                membername = member.firstChild.firstChild.data
+                # if compound is not a file, add scope name to member name
+                if compound_kind != 'file':
+                    membername = "::".join([name, membername])
+                index_data[refid] = [membername, kind]
+
+        # find bried description and description of each refid in all other xml
+        for xml_fname in Path(xmldir).rglob('*.xml'):
+            xml_file = etree.parse(str(xml_fname))
+            for refid in index_data.keys():
+                # get definition node of item (class/enum/function)
+                itemdef = xml_file.xpath(f'''.//*[@id='{refid}']''')
+                if itemdef:  # found id
+                    itemdef = itemdef[0]  # list of 1 element to element
+                    # get brief description
+                    brief = getFisrtChildByTagName(itemdef, 'briefdescription')[0]
+                    paragraph = brief.getchildren()
+                    if paragraph:
+                        summary = brief.getchildren()[0].xpath("string()").strip()
+                    else:
+                        summary = ''
+                    # in case of empty brief, use detailed instead
+                    if summary == '':  # empty brief description
+                        # get first paragraph of detailed description if empty
+                        detail = getFisrtChildByTagName(itemdef,
+                                                        'detaileddescription')[0]
+                        paragraph = detail.getchildren()
+                        if paragraph:
+                            summary = paragraph[0].xpath("string()").strip()
+                        else:
+                            summary = ''
+                    index_data[refid].append(summary)
+
+        # integrate all items to the class-bound variable DoxySummary.summaries
+        for refid in index_data.keys():
+            DoxySummary.kinds[index_data[refid][0]] = index_data[refid][1]
+            DoxySummary.summaries[index_data[refid][0]] = index_data[refid][2]
+            print(index_data[refid])
+
+
 class DoxySummaryEntry:
 
-    def __init__(self, filename: str, template: str, name: str,
-                 toctree: str = '', scope: str = ''):
+    def __init__(self, filename: str, name: str,
+                 template: str= 'cppbase.rst', toctree: str = '',
+                 scope: str = ''):
         """
         Simple class representing an entry in \"doxysummary\" directive.
-
         Parameters
         ----------
         filename : str
@@ -74,7 +172,6 @@ class DoxySummaryEntry:
         scope : str, optional
             Current scope of the entry.
             The default is ''.
-
         """
         self.filename = filename
         self.toctree = toctree
@@ -86,12 +183,10 @@ class DoxySummaryEntry:
     def fullname(self) -> str:
         """
         Get the fullname (scope + name) of the entry.
-
         Returns
         -------
         str
             Fullname of the entry.
-
         """
         if self.scope == '':
             return self.name
@@ -107,17 +202,14 @@ class DoxySummaryRenderer:
     def __init__(self, app: Sphinx) -> None:
         """
         Renderer generated rst files based on templates.
-
         Parameters
         ----------
         app : Sphinx
             Sphinx application.
-
         Raises
         ------
         ValueError
             When ``app`` is not a sphinx.Builder.
-
         """
         if isinstance(app, Builder):
             raise ValueError('Expected a Sphinx application object!')
@@ -140,7 +232,6 @@ class DoxySummaryRenderer:
     def render(self, template_name: str, context: Dict) -> str:
         """
         Render a string based on a template.
-
         Parameters
         ----------
         template_name : str
@@ -148,12 +239,10 @@ class DoxySummaryRenderer:
             ``package_templates_path``).
         context : Dict
             Python ``dict`` of keyword-value to be fetched in the template.
-
         Returns
         -------
         str
             Content of th template with matched keywords.
-
         """
         try:
             template = self.env.get_template(template_name)
@@ -177,12 +266,14 @@ def process_generate_files(app: Sphinx) -> None:
     Process generating rst files.
     This function must be called at initialization of Sphinx's building
     process.
-
     Parameters
     ----------
     app : Sphinx
         Sphinx Buider.
-
+    Raises
+    ------
+    ValueError
+        Kind of item not found in the package template library.
     """
 
     # get files in the source directory
@@ -268,123 +359,29 @@ def process_generate_files(app: Sphinx) -> None:
     # generate files based on the template for each doxysummary
     renderer = AutosummaryRenderer(app)
     for doxysummary in doxysummaries:
-        template_name = doxysummary.template
         generated_dir = posixpath.join(posixpath.dirname(doxysummary.filename),
                                        doxysummary.toctree)
         ensuredir(generated_dir)
 
+        # construct dictionary of keys - values for subtituting to the template
         name = doxysummary.name
         fullname = doxysummary.fullname
+        kind: str = DoxySummary.kinds[fullname]
         keys = {}
         keys['objname'] = fullname
         keys['module'] = "::".join(fullname.split("::")[:-1])
         keys['fullname'] = fullname
         keys['underline'] = len(fullname) * '='
+        keys[kind] = True  # in order to use {%if ...%} in Jinja template
+
+        # auto detect template if template name is 'auto'
+        template_name = doxysummary.template
         file_content = renderer.render(template_name, keys)
 
         file_name = fullname.replace('::', '.') + suffix
         generated_filename = posixpath.join(generated_dir, file_name)
         with open(generated_filename, 'w') as generated_file:
             generated_file.write(file_content)
-
-
-def getFisrtChildByTagName(element: etree._Element, tag: str):
-    """
-    Search the first child of XML element by tagname.
-
-    Parameters
-    ----------
-    element : etree._Element
-        XML element to search.
-    tag : str
-        Name of the tag to search.
-
-    Returns
-    -------
-    result : List[lxml.etree._Element]
-        List of first-level children with tagname to search for.
-
-    """
-    result: List[etree._Element] = []
-    for child in element.getchildren():
-        if child.tag == tag:
-            result.append(child)
-    return result
-
-
-def process_generate_xmltree(app: Sphinx) -> None:
-    """
-    Process creating a look-up table for a tree of Doxygen created xml nodes.
-    To be executed at initialization of Sphinx.Builder
-
-    Parameters
-    ----------
-    app : Sphinx
-        Sphinx.Builder.
-
-    Raises
-    ------
-    ValueError
-        When behavior of Doxygen created element not as expected.
-
-    """
-    for xmldir in app.config.doxygen_xml:
-        # retrieve refid from index.xml
-        xmldir = os.path.abspath(xmldir)
-        index_fname = os.path.join(xmldir, 'index.xml')
-        index_file = parse(index_fname)
-        doxygenindex = index_file.firstChild
-
-        # loop over each compound and get its information
-        index_data: Dict[str, List[str]] = {}
-        for compound in doxygenindex.getElementsByTagName('compound'):
-            refid = compound.getAttribute('refid')
-            kind = compound.getAttribute('kind')
-            if not (refid or kind):
-                raise ValueError('Cannot detect the compound')
-            name = compound.firstChild
-            if name.tagName != 'name':
-                raise ValueError('Expected first child of "compound" '
-                                 'tagged "name"')
-            name = name.firstChild.data
-            index_data[refid] = [name, kind]
-
-            for member in compound.getElementsByTagName("member"):
-                refid = member.getAttribute('refid')
-                kind = member.getAttribute('kind')
-                membername = member.firstChild.firstChild.data
-                membername = "::".join([name, membername])
-                index_data[refid] = [membername, kind]
-
-        # find bried description and description of each refid in all other xml
-        for xml_fname in Path(xmldir).rglob('*.xml'):
-            xml_file = etree.parse(str(xml_fname))
-            for refid in index_data.keys():
-                # get definition node of item (class/enum/function)
-                itemdef = xml_file.xpath(f'''.//*[@id='{refid}']''')
-                if itemdef:  # found id
-                    itemdef = itemdef[0]  # list of 1 element to element
-                    # get brief description
-                    brief = getFisrtChildByTagName(itemdef, 'briefdescription')[0]
-                    if len(brief.getchildren()) > 0:
-                        summary = brief.getchildren()[0].text.strip()
-                    else:
-                        summary = ''
-                    # in case of empty brief, use detailed instead
-                    if summary == '':  # empty brief description
-                        # get first paragraph of detailed description if empty
-                        detail = getFisrtChildByTagName(itemdef,
-                                                        'detaileddescription')[0]
-                        paragraph = detail.getchildren()
-                        if paragraph:
-                            summary = paragraph[0].text.strip()
-                        else:
-                            summary = ''
-                    index_data[refid].append(summary)
-
-        # integrate all items to the class-bound variable DoxySummary.summaries
-        for refid in index_data.keys():
-            DoxySummary.summaries[index_data[refid][0]] = index_data[refid][2]
 
 
 # =============================================================================
@@ -397,7 +394,6 @@ def process_generate_xmltree(app: Sphinx) -> None:
 class DoxySummary(SphinxDirective):
     """
     Class represents the directive ``doxysummary`` when Sphinx parses inputs.
-
     """
 
     # Additional attributes
@@ -413,6 +409,8 @@ class DoxySummary(SphinxDirective):
     }
     #: Dictionary of {name: brief description}.
     summaries: Dict[str, str] = {}
+    #: Dictionary of {name: kind}.
+    kinds: Dict[str, str] = {}
 
     def run(self) -> List[Node]:
         """
@@ -421,17 +419,14 @@ class DoxySummary(SphinxDirective):
         alias and brief description from Doxygen created XML files, and builds
         a hidden toctree linking to the generated files at the beginning of
         Sphinx build process.
-
         Raises
         ------
         ValueError
             When a line having more than 1 alias.
-
         Returns
         -------
         List[docutils.nodes.Node]
             List of docutils nodes to be added to the document.
-
         """
         # create documenter bridge
         self.bridge = DocumenterBridge(self.env, self.state.document.reporter,
@@ -467,7 +462,7 @@ class DoxySummary(SphinxDirective):
                         raise ValueError(f'Expected 1 alias, got '
                                          f'{alias_count}.')
                     if alias_count == 1:
-                        displaynames.append(shlex.split(x.strip())[1])
+                        displaynames.append(shlex.split(alias)[0])
                 # if alias not detected, display in-scope name
                 elif ignore_parent:
                     displaynames.append(name.split("::")[-1])
@@ -511,6 +506,9 @@ class DoxySummary(SphinxDirective):
         # add each line to table with description
         for name, displayname, desc in zip(names, displaynames, descs):
             qualifier = 'cpp:any'
+            # "define" macros is not included in role cpp:any
+            if DoxySummary.kinds[name] == 'define':
+                qualifier = 'c:macro'
             col1 = ':%s:`%s <%s>`' % (qualifier, displayname, name)
             append_row(col1, desc)
 
@@ -569,10 +567,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_directive('doxysummary', DoxySummary)
     # app.add_role('autolink', AutoLink())
-    app.connect('builder-inited', process_generate_files)
     app.connect('builder-inited', process_generate_xmltree)
+    app.connect('builder-inited', process_generate_files)
 
-    app.add_config_value(name='doxygen_xml', default=os.path.abspath('./xml'),
+    app.add_config_value(name='doxygen_xml', default=[os.path.abspath('./xml')],
                          rebuild=True, types=[list])
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+
