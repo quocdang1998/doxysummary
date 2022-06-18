@@ -46,10 +46,10 @@ Options
 
 The directive `doxysummary` takes into account these following options:
 
-- `:template:` (mandatory) : name of the template. The template renderer will
+- `:template:` (optional) : name of the template. The template renderer will
 firstly search for template file in the Sphinx source directory, then in
 the Sphinx config variable `templates_path`, and finally in `doxysummary`
-template folder.
+template folder. By default, the template is `cppbase.rst`.
 
 - `:toctree:` (optional) : directory (with respect to the input rst file) in
 which rst files for each items in the content of the directive are generated.
@@ -71,15 +71,15 @@ items. This feature help shortening the name of the items in the content of
        Orange
     ```
 
-Another feature still in developping is aliasing. This feature allows to
-customize the displayed name of the item in the autosummary table:
+From version 1.2.0, user can customize the displayed name of the item in the
+autosummary table with aliasing:
 ```reStructuredText
 .. doxysummary::
    :toctree: generated
    :template: cppclass.rst
 
-   fruit::CppCherry "Cherry"
-   fruit::CppOrange "Orange"
+   fruit::Cherry "CppCherry"
+   fruit::Orange "CppOrange"
 ```
 
 **Note**: Alias cannot have any space inside. reStruturedText will inteprete
