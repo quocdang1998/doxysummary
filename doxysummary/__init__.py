@@ -12,7 +12,7 @@ import shlex
 
 from pathlib import Path
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -51,6 +51,64 @@ from lxml import etree
 # Or else toctree will unable to find these files
 # =============================================================================
 
+
+class DoxygenItem:
+
+    def __init__(self, refid: str, name: str, kind: str):
+        # basic attributes
+        self.name = name
+        self.kind = kind
+        self.refid = refid
+
+        # initialize default attributes
+        self.summary = ''
+        self.args: List[Tuple[str, str]] = None
+        self.return_type: str = ''
+        self.overloaded: bool = False
+
+        # append name to all_functions to set overload property
+        if self.kind == 'function':
+            # firstly appear
+            if self.name not in DoxySummary.all_functions.keys():
+                DoxySummary.all_functions[self.name] = self
+            else:
+                DoxySummary.all_functions[self.name].overloaded = True
+                self.overloaded = True
+
+    def __repr__(self):
+        return f'{self.name:<30s} {self.kind:<10s} {self.summary}'
+
+    def __hash__(self):
+        return self.refid
+
+    def set_summary(self, summary: str):
+        self.summary = summary
+
+    @property
+    def has_summary(self):
+        return self.summary != ''
+
+    def set_args(self, args: List[Tuple[str, str]]):
+        if self.kind != 'function':
+            raise ValueError('Cannot set argument for non function type')
+        self.args = args
+
+    def set_return_type(self, return_type: str):
+        self.return_type = return_type
+
+    def check_args(self, args: str) -> bool:
+        args = args[1:-1]  # trim off ()
+        args: List[str] = [x.strip() for x in args.split(',')]
+
+        # perform simple heuristic check
+        if len(args) != len(self.args):
+            return False
+        for arg, xml_arg in zip(args, self.args):
+            if xml_arg[0] in arg:
+                continue
+            else:
+                return False
+        return True
 
 def getFisrtChildByTagName(element: etree._Element, tag: str):
     """
@@ -93,8 +151,9 @@ def process_generate_xmltree(app: Sphinx) -> None:
         index_file = parse(index_fname)
         doxygenindex = index_file.firstChild
 
-        # loop over each compound and get its information
-        index_data: Dict[str, List[str]] = {}  # dict of refid -> (name, kind)
+        # step1: loop over each compound and get its information
+        # dict of refid -> DoxygenItem(name, kind, arguments if kind==fucntion)
+        index_data: Dict[str, DoxygenItem] = {}
         for compound in doxygenindex.getElementsByTagName('compound'):
             refid = compound.getAttribute('refid')
             kind = compound.getAttribute('kind')
@@ -105,7 +164,7 @@ def process_generate_xmltree(app: Sphinx) -> None:
                 raise ValueError('Expected first child of "compound" '
                                  'tagged "name"')
             name = name.firstChild.data
-            index_data[refid] = [name, kind]
+            index_data[refid] = DoxygenItem(refid=refid, name=name, kind=kind)
 
             compound_kind = kind
             for member in compound.getElementsByTagName("member"):
@@ -115,13 +174,13 @@ def process_generate_xmltree(app: Sphinx) -> None:
                 # if compound is not a file, add scope name to member name
                 if compound_kind != 'file':
                     membername = "::".join([name, membername])
-                index_data[refid] = [membername, kind]
+                index_data[refid] = DoxygenItem(refid=refid, name=membername, kind=kind)
 
-        # find bried description and description of each refid in all other xml
+        # step2: find short description and arguments of each refid in all other xml
         for xml_fname in Path(xmldir).rglob('*.xml'):
             xml_file = etree.parse(str(xml_fname))
             for refid in index_data.keys():
-                # get definition node of item (class/enum/function)
+                # step2.1: get definition node of item (class/enum/function)
                 itemdef = xml_file.xpath(f'''.//*[@id='{refid}']''')
                 if itemdef:  # found id
                     itemdef = itemdef[0]  # list of 1 element to element
@@ -129,7 +188,8 @@ def process_generate_xmltree(app: Sphinx) -> None:
                     brief = getFisrtChildByTagName(itemdef, 'briefdescription')[0]
                     paragraph = brief.getchildren()
                     if paragraph:
-                        summary = brief.getchildren()[0].xpath("string()").strip()
+                        summary = brief.getchildren()[0].xpath("string()")
+                        summary = summary.strip().splitlines()[0]
                     else:
                         summary = ''
                     # in case of empty brief, use detailed instead
@@ -139,16 +199,91 @@ def process_generate_xmltree(app: Sphinx) -> None:
                                                         'detaileddescription')[0]
                         paragraph = detail.getchildren()
                         if paragraph:
-                            summary = paragraph[0].xpath("string()").strip()
+                            summary = paragraph[0].xpath("string()")
+                            summary = summary.strip().splitlines()[0]
                         else:
                             summary = ''
-                    index_data[refid].append(summary)
+                    index_data[refid].set_summary(summary)
 
-        # integrate all items to the class-bound variable DoxySummary.summaries
+                    # step2.2: get argument and return type if kind is 'function'
+                    if index_data[refid].kind == 'function':
+                        params = getFisrtChildByTagName(itemdef, 'param')
+                        arguments: List[Tuple[str, str]] = []  # args of func
+                        if len(params) == 0:  # empty argument list
+                            continue
+                        for param in params:
+                            argtype = param.xpath('.//type')[0].text
+                            argname = param.xpath('.//declname')
+                            if argname:  # argname is not empty
+                                argname = argname[0].text
+                            else:  # declare function prototype only
+                                argname = ''
+                            arguments.append((argtype, argname))
+                        index_data[refid].set_args(arguments)
+
+                        return_type = getFisrtChildByTagName(itemdef, 'type')
+                        return_type = return_type[0].xpath("string()")
+                        index_data[refid].set_return_type(return_type)
+
+        # step3: integrate all items to the class-bound variable DoxySummary.summaries
         for refid in index_data.keys():
-            DoxySummary.kinds[index_data[refid][0]] = index_data[refid][1]
-            DoxySummary.summaries[index_data[refid][0]] = index_data[refid][2]
-            print(index_data[refid])
+            # deprecated
+            #DoxySummary.kinds[index_data[refid].name] = index_data[refid].kind
+            #DoxySummary.summaries[index_data[refid].name] = index_data[refid].summary
+
+            # official
+            if index_data[refid].name not in DoxySummary.xmltree.keys():
+                DoxySummary.xmltree[index_data[refid].name] = [index_data[refid]]
+            else:
+                DoxySummary.xmltree[index_data[refid].name].append(index_data[refid])
+
+
+def funcname_only(name: str):
+    name_without_args = name.split('(')[0].strip()
+    has_args = '(' in name and ')' in name
+    if has_args:
+        args = '(' + name.split('(')[1]
+    else:
+        args = ''
+    tokens = name_without_args.split()
+    if len(tokens) == 1:
+        funcname = tokens[0]
+    else:
+        funcname = tokens[1]
+    return funcname
+
+
+def del_restype(name: str):
+    name_without_args = name.split('(')[0].strip()
+    has_args = '(' in name and ')' in name
+    if has_args:
+        args = '(' + name.split('(')[1]
+    else:
+        args = ''
+    tokens = name_without_args.split()
+    if len(tokens) == 1:
+        funcname = tokens[0]
+    else:
+        funcname = tokens[1]
+    return funcname + args
+
+
+def add_scope_to_name(name: str, scope: str):
+    name_without_args = name.split('(')[0].strip()
+    has_args = '(' in name and ')' in name
+    if has_args:
+        args = '(' + name.split('(')[1]
+    else:
+        args = ''
+    tokens = name_without_args.split()
+    if len(tokens) == 1:
+        restype = ''
+        funcname = tokens[0]
+    else:
+        restype = tokens[0] + ' '
+        funcname = tokens[1]
+    funcname = '::'.join([scope, funcname])
+    return restype + funcname + args
 
 
 class DoxySummaryEntry:
@@ -191,7 +326,7 @@ class DoxySummaryEntry:
         if self.scope == '':
             return self.name
         else:
-            return "::".join([self.scope, self.name])
+            return add_scope_to_name(self.name, self.scope)
 
     def __repr__(self):
         return f'Entry of name {self.fullname} template {self.template}'
@@ -261,6 +396,33 @@ class DoxySummaryRenderer:
 logger = logging.getLogger(__name__)
 
 
+def fullname_to_filename (item_name: str, suffix: str):
+    """
+    Convert item fullname to filename).
+    
+    Parameters
+    ----------
+    item_name : str
+        Full name of item in C++ code (can be declaration or prototype).
+    suffix: str
+        File suffix.
+    Returns
+    -------
+    str
+        Name of the file.
+    """
+    file_name = item_name
+    file_name = file_name.replace('::', '.')  # avoid ':' in scope
+    file_name = file_name.replace('(', '6')  # avoid '('
+    file_name = file_name.replace(')', '9')  # avoid ')'
+    file_name = file_name.replace('<', '4')  # avoid '<'
+    file_name = file_name.replace('>', '7')  # avoid '>'
+    file_name = file_name.replace('&', '_amp_')  # avoid '&'
+    file_name = file_name.replace(' ', '-')  # avoid '&'
+
+    return file_name + suffix
+
+
 def process_generate_files(app: Sphinx) -> None:
     """
     Process generating rst files.
@@ -302,7 +464,7 @@ def process_generate_files(app: Sphinx) -> None:
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
     scope_arg_re = re.compile(r'^\s+:scope:\s*(.*?)\s*$')
-    items_arg_re = re.compile(r'^\s+(~?[_a-zA-Z][a-zA-Z0-9_:]*)\s*.*?')
+    items_arg_re = re.compile(r'^\s+(~?[_a-zA-Z][^#"]*)\s*.*?')
 
     doxysummaries: List[DoxySummaryEntry] = []
     for filename in genfiles:
@@ -338,7 +500,7 @@ def process_generate_files(app: Sphinx) -> None:
                         name = m.group(1).strip()
                         if name[0] == '~':
                             name = name[1:]
-                        doxysummary_args['name'] = name
+                        doxysummary_args['name'] = del_restype(name)
                         doxysummaries.append(DoxySummaryEntry(**doxysummary_args))
                         continue
 
@@ -366,7 +528,8 @@ def process_generate_files(app: Sphinx) -> None:
         # construct dictionary of keys - values for subtituting to the template
         name = doxysummary.name
         fullname = doxysummary.fullname
-        kind: str = DoxySummary.kinds[fullname]
+        fullname_without_args = fullname.split('(')[0]
+        kind: str = DoxySummary.xmltree[fullname_without_args][0].kind
         keys = {}
         keys['objname'] = fullname
         keys['module'] = "::".join(fullname.split("::")[:-1])
@@ -378,7 +541,8 @@ def process_generate_files(app: Sphinx) -> None:
         template_name = doxysummary.template
         file_content = renderer.render(template_name, keys)
 
-        file_name = fullname.replace('::', '.') + suffix
+        # mangle fullname -> filename
+        file_name = fullname_to_filename(fullname, suffix)
         generated_filename = posixpath.join(generated_dir, file_name)
         with open(generated_filename, 'w') as generated_file:
             generated_file.write(file_content)
@@ -407,10 +571,10 @@ class DoxySummary(SphinxDirective):
         'template': directives.unchanged_required,  # name of template
         'scope': directives.unchanged,  # scoped item (namespace, class, enum)
     }
-    #: Dictionary of {name: brief description}.
-    summaries: Dict[str, str] = {}
-    #: Dictionary of {name: kind}.
-    kinds: Dict[str, str] = {}
+    #: dictionary of all fristly found DoxygenItem of type functions
+    all_functions: Dict[str, DoxygenItem] = {}
+    #: xmltree to all items
+    xmltree: Dict[str, List[DoxygenItem]] = {}
 
     def run(self) -> List[Node]:
         """
@@ -435,11 +599,12 @@ class DoxySummary(SphinxDirective):
         # get input by lines
         names: List[str] = []
         displaynames: List[str] = []  # name to be displayed to the table
+        item_regex = r'^(~?[_a-zA-Z][^#"]*)\s*.*?'
         alias_regex = r'".+"'
         for x in self.content:
             # if not empty line
             if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0]):
-                name = shlex.split(x.strip())[0]
+                name = re.search(item_regex, x).group(1).strip()
 
                 # check if name starts with a ~
                 ignore_parent: bool = False
@@ -449,8 +614,8 @@ class DoxySummary(SphinxDirective):
 
                 # retrieve the fullname
                 if 'scope' in self.options:
-                    name = "::".join([self.options['scope'].strip(), name])
-                names.append(name)
+                    name = add_scope_to_name(name, self.options['scope'].strip())
+                names.append(del_restype(name))
 
                 # append displayname if alias detected -> overwrite effect of ~
                 m = re.search(alias_regex, x.strip())
@@ -465,12 +630,28 @@ class DoxySummary(SphinxDirective):
                         displaynames.append(shlex.split(alias)[0])
                 # if alias not detected, display in-scope name
                 elif ignore_parent:
-                    displaynames.append(name.split("::")[-1])
+                    displaynames.append(name.split("::")[-1])  # attention !
                 else:
                     displaynames.append(name)
 
         # get summary
-        descs = [DoxySummary.summaries[name] for name in names]
+        descs: Dict[str, str] = {}
+        restype: Dict[str, str] = {}
+        for name in names:
+            items_list: List[DoxygenItem] = DoxySummary.xmltree[funcname_only(name)]
+            func_args = re.search('\(.*\)', name)
+            if func_args:  # if name is a function with arguments
+                func_args = func_args.group(0)
+                for item in items_list:  # loop over functions with the same name
+                    if item.check_args(func_args):  # found a matched definition
+                        descs[name] = item.summary
+                        restype[name] = item.return_type
+                        break
+                if name not in descs.keys():
+                    raise ValueError('Function not found, '
+                                     'please enter the correct C++ declaration/prototype.')
+            else:
+                descs[name] = DoxySummary.xmltree[name][0].summary
 
         # initialize table to be returned
         table_spec = addnodes.tabular_col_spec()
@@ -504,12 +685,18 @@ class DoxySummary(SphinxDirective):
             body.append(row)
 
         # add each line to table with description
-        for name, displayname, desc in zip(names, displaynames, descs):
+        for name, displayname in zip(names, displaynames):
             qualifier = 'cpp:any'
             # "define" macros is not included in role cpp:any
-            if DoxySummary.kinds[name] == 'define':
+            if DoxySummary.xmltree[funcname_only(name)][0].kind == 'define':
                 qualifier = 'c:macro'
-            col1 = ':%s:`%s <%s>`' % (qualifier, displayname, name)
+            if len(DoxySummary.xmltree[funcname_only(name)]) > 1:
+                qualifier = 'cpp:func'
+                linkname = restype[name] + ' ' + name
+            else:
+                linkname = name
+            col1 = ':%s:`%s <%s>`' % (qualifier, displayname, linkname)
+            desc = descs[name]
             append_row(col1, desc)
 
         # add a hidden toctree and create files
@@ -520,9 +707,9 @@ class DoxySummary(SphinxDirective):
             tree_prefix = ''
 
         docnames: List[str] = []  # list of entries of hidden toctree
-        for name, desc in zip(names, descs):
-            real_name = name.replace('::', '.')
-            docname = posixpath.join(tree_prefix, real_name)
+        for name in names:
+            file_name = fullname_to_filename(del_restype(name), '')
+            docname = posixpath.join(tree_prefix, file_name)
             docname = posixpath.normpath(posixpath.join(dirname, docname))
             docnames.append(docname)
 

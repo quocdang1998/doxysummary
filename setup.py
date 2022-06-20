@@ -11,7 +11,7 @@ from distutils.core import setup
 setup_args = {
     'name': 'sphinx-ext-doxysummary',
 
-    'version': '1.2.0',
+    'version': '2.1.0',
 
     'description': ('Sphinx extension for autosummary with Doxygen entries '
                     'created by the package ``breathe``.'),
