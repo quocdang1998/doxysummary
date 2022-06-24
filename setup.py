@@ -4,14 +4,17 @@
 Created on Fri Jun 17 13:50:43 2022
 
 @author: dn266595
+
+Future implementation: set_verbosity for debugging, mute auto generate and
+'set alias as page title'
 """
 
 from distutils.core import setup
 
 setup_args = {
-    'name': 'sphinx-ext-doxysummary',
+    'name': 'sphinx-doxysummary',
 
-    'version': '2.1.0',
+    'version': '2.2.0',
 
     'description': ('Sphinx extension for autosummary with Doxygen entries '
                     'created by the package ``breathe``.'),
@@ -20,10 +23,10 @@ setup_args = {
 
     'author_email': 'quocdang1998@gmail.com',
 
-    'packages': ['sphinx.ext.doxysummary'],
-    'package_dir': {'sphinx.ext.doxysummary': 'doxysummary'},
+    'packages': ['sphinx_doxysummary'],
+    'package_dir': {'sphinx_doxysummary': 'doxysummary'},
     'package_data': {
-        'sphinx.ext.doxysummary': ['templates/*.rst']
+        'sphinx-doxysummary': ['templates/*.rst']
     },
 
     'install_requires': ['sphinx', 'breathe'],

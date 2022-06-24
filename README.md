@@ -23,7 +23,7 @@ variable `doxygen_xml` to the list of locations of xml files:
 
 ```Python
 extensions = [...
-    'sphinx.ext.doxysummary',
+    'sphinx-doxysummary',
     ...
 ]
 
@@ -82,5 +82,14 @@ autosummary table with aliasing:
    fruit::Orange "CppOrange"
 ```
 
-**Note**: Alias cannot have any space inside. reStruturedText will inteprete
-the space as a newline.
+**Note**: Alias shouldn't have any space inside.
+
+New in version 2.2.0: function overloading is officially supported.
+```reStructuredText
+.. doxysummary::
+   :toctree: generated
+
+   func_overload()
+   func_overload(int a) "func_overload(int)"
+   func_overload(char,char)
+   func_overload(std::vector<double>)
