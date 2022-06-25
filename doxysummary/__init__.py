@@ -26,6 +26,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('builder-inited', process_generate_xmltree)
     app.connect('builder-inited', process_generate_files)
 
+    app.add_config_value(name='doxysummary_generate', default=True,
+                         rebuild=True, types=[bool])
     app.add_config_value(name='doxygen_xml', default=[os.path.abspath('./xml')],
                          rebuild=True, types=[list])
 

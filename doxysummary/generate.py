@@ -165,7 +165,7 @@ def process_generate_files(app: Sphinx) -> None:
     """
 
     # get files in the source directory
-    genfiles = app.config.autosummary_generate
+    genfiles = app.config.doxysummary_generate
 
     if genfiles is True:
         env = app.builder.env

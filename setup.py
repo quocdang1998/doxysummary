@@ -29,7 +29,7 @@ setup_args = {
         'sphinx-doxysummary': ['templates/*.rst']
     },
 
-    'install_requires': ['sphinx', 'breathe'],
+    'install_requires': ['sphinx', 'breathe', 'lxml'],
 }
 
 setup(**setup_args)
