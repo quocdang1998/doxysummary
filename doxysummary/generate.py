@@ -16,7 +16,7 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.ext.autosummary.generate import AutosummaryRenderer, _underline
+from sphinx.ext.autosummary.generate import _underline
 from sphinx.ext.autosummary import get_rst_suffix
 from sphinx.locale import __
 from sphinx.util import logging, rst
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class DoxySummaryEntry:
 
     def __init__(self, filename: str, name: str,
-                 template: str= 'cppbase.rosst', toctree: str = '',
+                 template: str= 'cppbase.rst', toctree: str = '',
                  scope: str = ''):
         """Simple class representing an entry in \"doxysummary\" directive.
 
@@ -245,7 +245,7 @@ def process_generate_files(app: Sphinx) -> None:
                     continue
 
     # generate files based on the template for each doxysummary
-    renderer = AutosummaryRenderer(app)
+    renderer = DoxySummaryRenderer(app)
     for doxysummary in doxysummaries:
         generated_dir = os.path.join(os.path.dirname(doxysummary.filename),
                                        doxysummary.toctree)
