@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.8.17">
+  <compound refid="structAStruct" kind="struct"><name>AStruct</name>
+    <member refid="structAStruct_1a698ae3679e8ea5b9ce4faf6eda4cfb0c" kind="variable"><name>s</name></member>
+    <member refid="structAStruct_1ae3f02e5790315cd4144844b0c78a1255" kind="variable"><name>l</name></member>
+  </compound>
+  <compound refid="classFoo" kind="class"><name>Foo</name>
+    <member refid="classFoo_1a96ef17e84655cda38bbdf9f227e6c7a2" kind="variable"><name>a_public_attribute</name></member>
+    <member refid="classFoo_1aaa3c01d24e4cc3b0a4e5077051737503" kind="variable"><name>a_private_attribute</name></member>
+    <member refid="classFoo_1a62da672680b5f34c82b80e0c86780560" kind="function"><name>a_public_method</name></member>
+    <member refid="classFoo_1a08f07880cb0dc007e5b8077912384ae4" kind="friend"><name>compare</name></member>
+    <member refid="classFoo_1a297814b399b195ca032e0a34e098bc5e" kind="friend"><name>operator+</name></member>
+    <member refid="classFoo_1a25f55b6f5daae708e45d72b96f3b8ea6" kind="function"><name>a_private_method</name></member>
+  </compound>
+  <compound refid="classTemplateClass" kind="class"><name>TemplateClass</name>
+    <member refid="classTemplateClass_1ade1db382d02a7bccc3af17730a3d6927" kind="variable"><name>a_</name></member>
+    <member refid="classTemplateClass_1a5b16159af48688ab110c4c3710306ebe" kind="variable"><name>b_</name></member>
+    <member refid="classTemplateClass_1a655cb3fd3cd9c350230ca8e7690540ed" kind="variable"><name>c_</name></member>
+    <member refid="classTemplateClass_1a7a609a5ee40c4396a52765018a52c46b" kind="function"><name>Abc</name></member>
+    <member refid="classTemplateClass_1aaaa0a4bd26e6580cc38292bff36ae1c6" kind="function"><name>~Abc</name></member>
+  </compound>
+  <compound refid="unionUnionExample" kind="union"><name>UnionExample</name>
+    <member refid="unionUnionExample_1a8892fcc826b0e5fc6752f6cfaff59f35" kind="variable"><name>x</name></member>
+    <member refid="unionUnionExample_1a23fb88bc15fc4416bb9a2a04d3e80107" kind="variable"><name>i</name></member>
+  </compound>
+  <compound refid="namespaceexample" kind="namespace"><name>example</name>
+    <member refid="namespaceexample_1a7bc18b09113d1488ba83f323be93b115" kind="variable"><name>scoped_variable</name></member>
+    <member refid="namespaceexample_1aa45c11a7f176a876611a6b2900f3a718" kind="function"><name>scopred_function</name></member>
+    <member refid="namespaceexample_1ac7bfd6454fc8e15956f9f289063449bc" kind="function"><name>a_long_named_function_for_testing_alias</name></member>
+  </compound>
+  <compound refid="example_8hpp" kind="file"><name>example.hpp</name>
+    <member refid="example_8hpp_1a598a3330b3c21701223ee0ca14316eca" kind="define"><name>PI</name></member>
+    <member refid="example_8hpp_1a7de082eb27200b447e363a480dcaeb78" kind="enum"><name>Spam</name></member>
+    <member refid="example_8hpp_1a7de082eb27200b447e363a480dcaeb78ac7bcabf6b98a220f2f4888a18d01568d" kind="enumvalue"><name>Value_1</name></member>
+    <member refid="example_8hpp_1a7de082eb27200b447e363a480dcaeb78add358c74cb9cb897424838fbcb69c933" kind="enumvalue"><name>Value_2</name></member>
+    <member refid="example_8hpp_1a7de082eb27200b447e363a480dcaeb78a62001aaececf78bf9dfa52364eeb9d82" kind="enumvalue"><name>Value_3</name></member>
+    <member refid="example_8hpp_1a11d147c64891830c9e79b3315b1b2e21" kind="typedef"><name>real</name></member>
+    <member refid="example_8hpp_1a14bcd2d544b22300bba3863251393e0f" kind="function"><name>foo</name></member>
+    <member refid="example_8hpp_1a456d32290621bf843d009220e88ce107" kind="function"><name>template_func</name></member>
+    <member refid="example_8hpp_1a3abd97ba04854a2688589328f106975a" kind="function"><name>func_overload</name></member>
+    <member refid="example_8hpp_1a5d1851511c174c9f5bdb3178075c5d41" kind="function"><name>func_overload</name></member>
+    <member refid="example_8hpp_1a02af96d58a01ac98920fab31486058ee" kind="function"><name>func_overload</name></member>
+    <member refid="example_8hpp_1a629bfe7e9bddbebb8f0dd4a58de7d0b3" kind="function"><name>func_overload</name></member>
+    <member refid="example_8hpp_1a9ab4996e7cf0068451171d7df8d8a28d" kind="function"><name>func_overload</name></member>
+    <member refid="example_8hpp_1a5148fdc24dd6e5312e83966fa03db1f4" kind="function"><name>func_overload</name></member>
+  </compound>
+</doxygenindex>

@@ -19,6 +19,7 @@ from sphinx_doxysummary.directive import DoxySummary
 
 # adding all elements to Sphinx application
 def setup(app: Sphinx) -> Dict[str, Any]:
+    app.setup_extension('sphinx.ext.autosummary')
     app.setup_extension('breathe')
 
     app.add_directive('doxysummary', DoxySummary)

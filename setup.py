@@ -24,12 +24,13 @@ setup_args = {
     'author_email': 'quocdang1998@gmail.com',
 
     'packages': ['sphinx_doxysummary'],
-    'package_dir': {'sphinx_doxysummary': 'doxysummary'},
+    'package_dir': {'sphinx_doxysummary': 'sphinx_doxysummary'},
     'package_data': {
         'sphinx-doxysummary': ['templates/*.rst']
     },
 
     'install_requires': ['sphinx', 'breathe', 'lxml'],
+    'extras_require': {'example': 'sphinx-rtd-theme'},
 }
 
 setup(**setup_args)
