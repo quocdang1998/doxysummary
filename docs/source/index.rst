@@ -88,3 +88,9 @@ The process of creating doxysummary table can be divided into 3 stages:
    generate
    directive
    utils
+
+Licence
+-------
+
+.. literalinclude:: ../../LICENCE
+   :language: text
