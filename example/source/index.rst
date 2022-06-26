@@ -54,12 +54,12 @@ Example of function overloading
 .. doxysummary::
    :toctree: generated
 
-   func_overload(void) "func_overload"
-   func_overload(int) "func_overload"
-   func_overload(double,double) "func_overload"
-   func_overload(const double &) "func_overload"
-   func_overload(double &&) "func_overload"
-   func_overload(std::vector<double> &) "func_overload"
+   func_overload(void) "func_overload_void"
+   func_overload(int) "func_overload_int"
+   func_overload(double,double) "func_overload_double_double"
+   func_overload(const double &) "func_overload_const_double_&"
+   func_overload(double &&) "func_overload_double_&&"
+   func_overload(std::vector<double> &) "func_overload_std""::vector<double>_&"
 
 
 

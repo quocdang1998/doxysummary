@@ -29,36 +29,56 @@ from sphinx_doxysummary.xmltree import xml_tree
 logger = logging.getLogger(__name__)
 
 class DoxySummaryEntry:
+    """Simple class representing an entry in \"doxysummary\" directive.
+    
+    Attributes
+    ----------
+    filename: str
+        Name of rst file source.
+    toctree: str
+        Directory in which the rst file will be generated.
+    template: str
+        Name of the template for generating rst file. Default is the template
+        ``cppbase.rst`` in installation directory of this package.
+    name: str
+        Content of the entry. If the entry is a function, the return type is
+        removed. Only the function name and the arguments are retained.
+    scope: str
+        Scope of the name. The true name in Doxygen XML of the item is
+        "scope::name".
+    alias: str
+        Alias of the entry. If there is an alias, the displayname and the title
+        of the generated file are the alias.
+    """
 
     def __init__(self, filename: str, name: str,
                  template: str= 'cppbase.rst', toctree: str = '',
-                 scope: str = ''):
-        """Simple class representing an entry in \"doxysummary\" directive.
-
+                 scope: str = '', alias: str = None):
+        """
         Parameters
         ----------
-        filename : str
+        filename: str
             Name of the rst file containing the entry.
-        template : str
+        template: str
             Name of template for generating the entry.
-        name : str
+        name: str
             Content of the entry.
-        toctree : str, optional
+        toctree: str, optional
             Directory to generate automatically rst files.
             The default is ''.
-        scope : str, optional
+        scope: str, optional
             Current scope of the entry.
             The default is ''.
-
-        Notes:
-        The argument in the name saved to the entry is removed. Only the
-        function name and the function arguments are retained.
+        alias: str
+            Alias of the entry.
+            The default is ``None``.
         """
         self.filename = filename
         self.toctree = toctree
         self.template = template
         self.name = name
         self.scope = scope
+        self.alias = alias
 
     @property
     def fullname(self) -> str:
@@ -80,14 +100,19 @@ class DoxySummaryEntry:
 
 
 class DoxySummaryRenderer:
+    """Renderer generating rst files based on templates.
+    
+    Attributes
+    ----------
+    env: jinja2.sandbox.SandboxedEnvironment
+        Enviroment containing path to possible templates to match.
+    """
 
     def __init__(self, app: Sphinx) -> None:
         """
-        Renderer generated rst files based on templates.
-
         Parameters
         ----------
-        app : Sphinx
+        app: Sphinx
             Sphinx application.
 
         Raises
@@ -113,22 +138,25 @@ class DoxySummaryRenderer:
             self.env.add_extension("jinja2.ext.i18n")
             self.env.install_gettext_translations(app.translator)
 
-    def render(self, template_name: str, context: Dict) -> str:
+    def render(self, template_name: str, context: Dict[str, Any]) -> str:
         """
         Render a string based on a template.
+
+        The renderer will first find template in source directory, then in the
+        template path declared in ``conf.py``, then in the template directory
+        of this package.
 
         Parameters
         ----------
         template_name : str
-            File name of the template (with respect to
-            ``package_templates_path``).
-        context : Dict
+            File name of the template.
+        context : Dict[str, Any]
             Python ``dict`` of keyword-value to be fetched in the template.
 
         Return
         ------
         str
-            Content of th template with matched keywords.
+            Content of the template with matched keywords.
         """
         try:
             template = self.env.get_template(template_name)
@@ -158,10 +186,6 @@ def process_generate_files(app: Sphinx) -> None:
     ------
     ValueError
         Kind of item not found in the package template library.
-
-    Notes
-    -----
-    
     """
 
     # get files in the source directory
@@ -227,6 +251,10 @@ def process_generate_files(app: Sphinx) -> None:
                         if name[0] == '~':
                             name = name[1:]
                         doxysummary_args['name'] = ''.join(split_name(name)[1:])
+                        alias = re.search('".+"', line)
+                        if alias:
+                            alias = alias.group(0).strip('"')
+                            doxysummary_args['alias'] = alias
                         doxysummaries.append(DoxySummaryEntry(**doxysummary_args))
                         continue
 
@@ -257,10 +285,13 @@ def process_generate_files(app: Sphinx) -> None:
         fullname_without_args = split_name(fullname)[1]
         kind: str = xml_tree[fullname_without_args][0].kind
         keys = {}
-        keys['objname'] = fullname
+        if doxysummary.alias:
+            keys['objname'] = doxysummary.alias
+        else:
+            keys['objname'] = fullname
         keys['module'] = "::".join(fullname.split("::")[:-1])
         keys['fullname'] = fullname
-        keys['underline'] = len(fullname) * '='
+        keys['underline'] = len(keys['objname']) * '='
         keys[kind] = True  # in order to use {%if ...%} in Jinja template
 
         # auto detect template if template name is 'auto'

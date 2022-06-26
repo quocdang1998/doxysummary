@@ -46,6 +46,7 @@ class DoxySummary(SphinxDirective):
     def run(self) -> List[Node]:
         """
         Method called after Sphinx has read the directive ``doxysummary``.
+
         It retrieves the full name of each entry, creates a summary table with
         alias and brief description from Doxygen created XML files, and builds
         a hidden toctree linking to the generated files at the beginning of
@@ -100,12 +101,7 @@ class DoxySummary(SphinxDirective):
                 if m:
                     ignore_parent = False
                     alias = m.group(0)
-                    alias_count = len(shlex.split(alias))
-                    if alias_count > 1:
-                        raise ValueError(f'Expected 1 alias, got '
-                                         f'{alias_count}.')
-                    if alias_count == 1:
-                        displaynames.append(shlex.split(alias)[0])
+                    displaynames.append(alias)
                 # if alias not detected, display in-scope name
                 elif ignore_parent:
                     displaynames.append(name.split("::")[-1])  # attention !

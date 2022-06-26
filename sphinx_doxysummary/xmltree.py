@@ -21,17 +21,6 @@ from sphinx_doxysummary.utils import getFisrtChildByTagName, compare_type
 class DoxygenItem:
     """Item read from Doxygen generated xml.
 
-    Parameters
-    ----------
-    refid: str
-        Reference ID of the item within the xml document.
-    name: str
-        Name of the item (full scope).
-    kind: str
-        Kind of the item (one of the following values: class, struct,
-        function, variable, enum, enumvalue, typedef, define, namespace,
-        file).
-
     Attributes
     ----------
     name: str
@@ -52,6 +41,18 @@ class DoxygenItem:
     """
 
     def __init__(self, refid: str, name: str, kind: str):
+        """
+        Parameters
+        ----------
+        refid: str
+            Reference ID of the item within the xml document.
+        name: str
+            Name of the item (full scope).
+        kind: str
+            Kind of the item (one of the following values: class, struct,
+            function, variable, enum, enumvalue, typedef, define, namespace,
+            file).
+        """
         # basic attributes
         self.name = name
         self.kind = kind
@@ -81,11 +82,17 @@ class DoxygenItem:
         return self.refid
 
     def set_summary(self, summary: str):
-        """Set summary of the item."""
+        """Set summary of the item.
+
+        Parameters
+        ----------
+        summary: str
+            Brief description of the item.
+        """
         self.summary = summary
 
     @property
-    def has_summary(self):
+    def has_summary(self) -> bool:
         """Check if the item has a summary or not."""
         return self.summary != ''
 
@@ -129,7 +136,7 @@ class DoxygenItem:
 
         Parameters
         ----------
-        args: srt
+        args: str
             Arguments of the prototype / declaration in form of a string and
             enclosed in parentheses.
 
@@ -155,6 +162,7 @@ class DoxygenItem:
 
 all_functions: Dict[str, List[DoxygenItem]] = {}
 xml_tree: Dict[str, List[DoxygenItem]] = {}
+"""Tree of item name to the list of corresponding DoxygenItem objects."""
 
 
 def process_generate_xmltree(app: Sphinx) -> None:
@@ -177,10 +185,10 @@ def process_generate_xmltree(app: Sphinx) -> None:
 
     Notes
     -----
-    This process is intended to be executed at the initialization of the build
-    process of Sphinx.
+    - This process is intended to be executed at the initialization of the build
+      process of Sphinx.
 
-    The name saved is full scope name.
+    - The name saved is full scope name.
     """
     for xmldir in app.config.doxygen_xml:
         # step1: retrieve reference IDs from index.xml of the Doxygen project

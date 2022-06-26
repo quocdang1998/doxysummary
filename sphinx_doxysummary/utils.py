@@ -243,7 +243,7 @@ def split_name(name: str) -> List[str]:
 
 def fullname_to_filename(item_name: str, suffix: str):
     """
-    Convert item fullname to filename).
+    Convert special characters in item fullname to valid filename characters.
 
     Parameters
     ----------

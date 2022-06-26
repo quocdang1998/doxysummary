@@ -18,12 +18,12 @@ $ pip install .
 Usage
 -----
 
-In `conf.py`, add `doxysummary` to the list of extensions, and set the config
-variable `doxygen_xml` to the list of locations of xml files:
+In `conf.py`, add `sphinx_doxysummary` to the list of extensions, and set the
+config variable `doxygen_xml` to the list of locations of xml files:
 
 ```Python
 extensions = [...
-    'sphinx-doxysummary',
+    'sphinx_doxysummary',
     ...
 ]
 
