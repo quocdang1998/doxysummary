@@ -106,14 +106,14 @@ body {
     background: var(--nav-background);
 }
 .wy-menu.wy-menu-vertical .caption-text {
-    color: var(--main);
+    color: var(--nav-title);
 }
 .wy-menu-vertical a {
     color: var(--nav-l1);
 }
 .wy-menu-vertical a:hover {
     font-weight: 700;
-    background-color: var(--navhoveredlink);
+    background-color: var(--nav-l1-hover-background);
 }
 .wy-menu-vertical li.current > a, .wy-menu-vertical li.on a {
     font-weight: 700;
@@ -139,7 +139,7 @@ body {
 
 /* mobile nav top */
 .wy-nav-top {
-    background: var(--main);
+    background: var(--nav-title);
 }
 
 /* ============================================================================

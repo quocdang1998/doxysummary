@@ -100,7 +100,7 @@ class DoxySummary(SphinxDirective):
                 m = re.search(alias_regex, x.strip())
                 if m:
                     ignore_parent = False
-                    alias = m.group(0)
+                    alias = m.group(0).strip('"')
                     displaynames.append(alias)
                 # if alias not detected, display in-scope name
                 elif ignore_parent:

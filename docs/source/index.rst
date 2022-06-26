@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Sphinx-DoxySummary's documentation!
+Welcome to Sphinx-DoxySummary documentation!
 ==============================================
 
 Introduction
@@ -37,8 +37,7 @@ Run example:
 User Guide
 ----------
 
-In ``conf.py``, add ``sphinx_doxysummary`` to the list of extensions, and set
-the config variable ``doxygen_xml`` to the list of locations of xml files:
+1. In ``conf.py``, add ``sphinx_doxysummary`` to the list of extensions
 
 .. code-block:: python3
 
@@ -47,9 +46,14 @@ the config variable ``doxygen_xml`` to the list of locations of xml files:
        ...
    ]
 
-   doxygen_xml = ['./xml']  # each directory corresponds to one Doxygen project
+2. In ``conf.py``, set the config variable ``doxygen_xml`` to list of
+   parent directories containing xml files, separated by ","
 
-Then, in the input rst file, add the following directive:
+.. code-block:: python3
+
+   doxygen_xml = ['./xml1', '../project2/xml']  # each directory corresponds to one Doxygen project
+
+3. In the input rst file, add the following directive:
 
 .. code-block:: restructuredtext
 
@@ -71,9 +75,9 @@ Packages
 
 The process of creating doxysummary table can be divided into 3 stages:
 
-- :doc:`xml_tree` (when Sphinx initialize Builder instance)
-- :doc:`generate` (when Sphinx initialize Builder instance)
-- :doc:`directive` (when Sphinx read the directive ``.. doxysummary::``)
+1. :doc:`xml_tree` (when Sphinx initialize Builder instance)
+2. :doc:`generate` (when Sphinx initialize Builder instance)
+3. :doc:`directive` (when Sphinx read the directive ``.. doxysummary::``)
 
 .. toctree::
    :maxdepth: 2

@@ -3,7 +3,7 @@
 // Without namespace
 
 /** @brief Foo function.*/
-int foo();
+int foo_function();
 
 /** Foo class.*/
 class Foo {
@@ -106,7 +106,7 @@ namespace example {
 extern int scoped_variable;
 
 /** @brief A scoped (namespace) function.*/
-void scopred_function (int x);
+void scoped_function (int x);
 
 /** @brief This is a function with a long name, but alias shortens the name.*/
 int a_long_named_function_for_testing_alias (void);

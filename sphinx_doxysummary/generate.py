@@ -143,7 +143,7 @@ class DoxySummaryRenderer:
         Render a string based on a template.
 
         The renderer will first find template in source directory, then in the
-        template path declared in ``conf.py``, then in the template directory
+        template path declared in ``conf.py``, and finally in the template directory
         of this package.
 
         Parameters

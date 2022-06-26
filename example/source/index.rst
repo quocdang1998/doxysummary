@@ -11,7 +11,7 @@ Example on a function, class and enum (enumvalue are not available).
 .. doxysummary::
    :toctree: generated
 
-   foo
+   foo_function # anything after the number sign character is a line comment
    Foo
    Spam
 
@@ -40,7 +40,7 @@ Example of a variable and a function inside a namespace.
    :scope: example
 
    scoped_variable
-   scopred_function
+   scoped_function
 
 Example of aliasing.
 
@@ -59,7 +59,7 @@ Example of function overloading
    func_overload(double,double) "func_overload_double_double"
    func_overload(const double &) "func_overload_const_double_&"
    func_overload(double &&) "func_overload_double_&&"
-   func_overload(std::vector<double> &) "func_overload_std""::vector<double>_&"
+   func_overload(std::vector<double> &) "func_overload_std::vector<double>_&"
 
 
 

@@ -162,16 +162,16 @@ class DoxygenItem:
 
 all_functions: Dict[str, List[DoxygenItem]] = {}
 xml_tree: Dict[str, List[DoxygenItem]] = {}
-"""Tree of item name to the list of corresponding DoxygenItem objects."""
+"""Map of item names to a list of corresponding DoxygenItem objects."""
 
 
 def process_generate_xmltree(app: Sphinx) -> None:
     """Create a tree of name -> ``DoxygenItem``.
 
-    This process parses through all xml files in all Doxygen project declared
-    in the config variable ``doxygen_xml`` and creates a look-up table (a map
-    of item full scope name to its corresponding DexygenItem object) stored in
-    the extern variable ``xml_tree``.
+    This process parses through all xml files in all Doxygen projects which are
+    declared in the config variable ``doxygen_xml``, and creates a look-up
+    table (i.e. a map of item full scope name to its corresponding DexygenItem
+    objects) stored in the extern variable ``xml_tree``.
 
     Parameters
     ----------
@@ -181,14 +181,14 @@ def process_generate_xmltree(app: Sphinx) -> None:
     Raises
     ------
     ValueError
-        When behavior of Doxygen created element not as expected.
+        When the behavior of Doxygen-created XML elements are not as expected.
 
     Notes
     -----
-    - This process is intended to be executed at the initialization of the build
+    - This process should be executed at the initialization of the building
       process of Sphinx.
 
-    - The name saved is full scope name.
+    - The name saved in ``xml_tree`` is the full scope name of item.
     """
     for xmldir in app.config.doxygen_xml:
         # step1: retrieve reference IDs from index.xml of the Doxygen project

@@ -1,13 +1,13 @@
 Generate rst files
 ==================
 
-The process generating automatically rst files based on the provided template
-is executed after parsing XML data.
+The process of auto-generating rst files which is based on the provided
+template, is executed after parsing XML data.
 
-Along with the
+Along with
 :doc:`process_generate_xmltree <generated/sphinx_doxysummary.xmltree.process_generate_xmltree>`,
 this process is called at the beginning of building the documentation (not when
-Sphinx is parsing rst source files) to avoid internal linking problem.
+Sphinx is parsing rst source files) to avoid internal linking problems.
 
 .. autosummary::
    :nosignatures:

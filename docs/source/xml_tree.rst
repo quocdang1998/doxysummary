@@ -1,14 +1,15 @@
 Generate XML tree
 =================
 
-The module ``sphinx_doxysummary.xmltree`` is meant for creating a map from item
+The module ``sphinx_doxysummary.xmltree`` is used to create a map from item
 names to their corresponding Doxygen descriptions. The result is saved to the
-module variable ``xml_tree``, which is called when Sphinx parses rst files, in
-order to retrieve the summary of the item with the name given.
+module variable ``xml_tree``, which is called when Sphinx parses rst files.
+When the summary table is constructed, summaries of the items are retrieved
+from their Doxygen descriptions stored in the variable.
 
 Note that because function overloading is allowed in C++, the generated map is
-one-to-many: a name is mapped to a list of all possible descriptionw sharing
-the same name.
+one-to-many (i.e. a name is mapped to a list of all possible descriptions sharing
+the same name).
 
 .. autosummary::
    :nosignatures:
