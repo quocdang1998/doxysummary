@@ -79,6 +79,8 @@ class DoxySummaryEntry:
         self.name = name
         self.scope = scope
         self.alias = alias
+        print(name)
+        print(alias)
 
     @property
     def fullname(self) -> str:
@@ -255,6 +257,8 @@ def process_generate_files(app: Sphinx) -> None:
                         if alias:
                             alias = alias.group(0).strip('"')
                             doxysummary_args['alias'] = alias
+                        else:
+                            doxysummary_args['alias'] = None
                         doxysummaries.append(DoxySummaryEntry(**doxysummary_args))
                         continue
 

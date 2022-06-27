@@ -62,5 +62,3 @@ Example of function overloading
    func_overload(std::vector<double> &) "func_overload_std::vector<double>_&"
 
 
-
-

@@ -14,7 +14,7 @@ To install doxysummary:
 $ pip install .
 ```
 
-To run examples:
+To build examples:
 
 ```console
 $ cd example
@@ -58,7 +58,7 @@ Then in the input rst file, add the following directive:
 
 **Note**:
 - Anything placed after `#` is line comment.
-- The non-scoped name is displayed in the table by placing a `~` at the
+- Display non-scoped name in the summary table by placing a `~` at the
   beginning of the entry
 
 Options

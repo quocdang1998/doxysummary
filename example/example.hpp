@@ -130,3 +130,4 @@ int func_overload(double && x);
 
 /** @brief Argument is a template std::vector.*/
 int func_overload(std::vector<double> & v);
+

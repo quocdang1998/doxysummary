@@ -160,8 +160,8 @@ class DoxygenItem:
         return True
 
 
-all_functions: Dict[str, List[DoxygenItem]] = {}
-xml_tree: Dict[str, List[DoxygenItem]] = {}
+all_functions = {}  # Dict[str, List[DoxygenItem]]
+xml_tree = {}  # Dict[str, List[DoxygenItem]]
 """Map of item names to a list of corresponding DoxygenItem objects."""
 
 
