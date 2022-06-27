@@ -250,3 +250,11 @@ html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-cont
 .rst-content .warning .admonition-title {
     background: var(--warning);
 }
+
+/* ============================================================================
+ READ THE DOCS
+============================================================================ */
+
+[data-ea-publisher].loaded, [data-ea-type].loaded {
+    display: none;
+}
