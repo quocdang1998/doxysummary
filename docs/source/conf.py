@@ -62,3 +62,26 @@ html_js_files = [('azura.js', {'defer': 'defer'})]
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+# -- Options for Latex output ------------------------------------------------
+
+# latex_theme = 'howto'
+latex_engine = 'xelatex'
+latex_additional_files = ['_static/azura.sty',  # '_static/logo.pdf',
+                          '_static/azura.pdf', '_static/LeagueSpartan.otf',
+                          '_static/FiraCode.ttf', '_static/FiraCode-SemiBold.ttf',
+                          '_static/ChunkFive.ttf', '_static/CocoGoose.ttf']
+latex_elements = {
+    'papersize': 'a4paper',
+    'passoptionstopackages': r'\PassOptionsToPackage{explicit}{titlesec}',
+    'fontpkg': '',
+    'fncychap': '',
+    'figure_align': 'htbp',
+    'pointsize': '10pt',
+    'tableofcontents': ('\\renewcommand{\\contentsname}{Contents}\n'
+                        r'\tableofcontents\clearpage\pagenumbering{arabic}'),
+    'preamble': r'\usepackage{azura}',
+    'makeindex': r'\usepackage[columns=1]{idxlayout}\makeindex'
+}
+
