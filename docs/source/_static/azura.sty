@@ -26,8 +26,10 @@
 \usepackage{lmodern}
 \renewcommand{\familydefault}{\sfdefault}
 \usepackage{fontspec}
-\setmonofont[Extension = .ttf, Path = ./, UprightFont = *, BoldFont = *-SemiBold, ItalicFont = *]{FiraCode} % monofont
-% \setmonofont[Extension = .ttf, Path = ./, UprightFont = *, BoldFont = *, ItalicFont = *, ItalicFeatures={FakeSlant=0.15}]{FiraCode-SemiBold} % monofont
+\setmonofont[Extension = .ttf, Scale = 0.8, Path = ./, UprightFont = *, BoldFont = *-SemiBold, ItalicFont = *]{FiraCode} % monofont
+\newcommand{\firabold}{%
+    \fontspec[Extension = .ttf, Scale = 0.8, Path = ./, UprightFont = *]{FiraCode-SemiBold}%
+}
 \newcommand{\chunkfive}{%
     \fontspec[Extension = .ttf, Path = ./, UprightFont = *, BoldFont = *, ItalicFont = *]{ChunkFive}%
 }
@@ -204,11 +206,11 @@
 % =============================================================================
 
 % Code
-\protected\def\sphinxcode#1{\texttt{\footnotesize{#1}}}
+\protected\def\sphinxcode#1{{\firabold{#1}}}
 \renewcommand{\emph}[1]{#1}
 
 % Autosummary
-\protected\def\sphinxcrossref#1{\textbf{\color{autosummary}#1}}
+\protected\def\sphinxcrossref#1{{\firabold\color{autosummary}#1}}
 
 % Code wrapping box
 \newlength{\sigwrapboxwidth}
@@ -246,17 +248,17 @@
   % overload macro in sig desc
   \ifnum \value{siglevel} = 1 {%
     \ifnum \value{codelanguage} = 0 {% Python
-      \global\protected\def\sphinxbfcode##1{\textbf{\color{codeprop}\sphinxcode{##1}}}%
+      \global\protected\def\sphinxbfcode##1{{\color{codeprop}\sphinxcode{##1}}}%
       \global\expandafter\def\csname DUrolen\endcsname##1{\textcolor{codearg}{\sphinxcode{##1}}}%
     } \fi%
     \ifnum \value{codelanguage} = 1 {% C++
-      \global\protected\def\sphinxbfcode##1{\textbf{\color{codedefault}\sphinxcode{##1}}}%
+      \global\protected\def\sphinxbfcode##1{{\color{codedefault}\sphinxcode{##1}}}%
     } \fi%
   } \fi%
   % sig-box
   \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax%
-  \item[{\sigwrapbox{\textbf{\color{codedefault}\sphinxcode{#1(#2)#3}}}}]%
+  \item[{\sigwrapbox{{\color{codedefault}\sphinxcode{#1(#2)#3}}}}]%
   \leavevmode\par\nobreak\vskip-\parskip\prevdepth\dp\strutbox%
   \let\sphinxbfcode\oldsphinxbfcode%
 }
@@ -275,7 +277,7 @@
   \global\expandafter\def\csname DUrolen,sig-param\endcsname##1{\textcolor{codearg}{\sphinxcode{##1}}}%
   % sig-box
   \py@argswidth=\dimexpr\linewidth+\labelwidth\relax\relax%
-  \item[{\sigwrapbox{\textbf{\color{codedefault}#1}}}]%
+  \item[{\sigwrapbox{{\color{codedefault}#1}}}]%
 }
 \makeatother
 
