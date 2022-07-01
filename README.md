@@ -1,3 +1,11 @@
+[![Language](https://img.shields.io/badge/language-Python%3E%3D3.6-0076fc)](https://www.python.org/)
+[![Package](https://img.shields.io/badge/package-Sphinx-9cf)](https://www.sphinx-doc.org/en/master/)
+[![Package](https://img.shields.io/badge/package-Doxygen-9cf)](https://doxygen.nl/)
+
+[![Licence](https://img.shields.io/badge/licence-MIT-blue)](https://github.com/quocdang1998/doxysummary/blob/master/LICENCE)
+[![HTML](https://img.shields.io/badge/html-ReadTheDocs-blue)](https://doxysummary.readthedocs.io/en/latest/)
+[![PDF](https://img.shields.io/badge/pdf-ReadTheDocs-blue)](https://doxysummary.readthedocs.io/_/downloads/en/latest/pdf/)
+
 Doxysummary
 ===========
 
