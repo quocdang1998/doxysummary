@@ -196,5 +196,6 @@ class DoxySummary(SphinxDirective):
             tocnode['entries'] = [(None, docn) for docn in docnames]
             tocnode['hidden'] = True
             tocnode['glob'] = None
+            tocnode['maxdepth'] = -1
 
         return [table_spec, table, tocnode]

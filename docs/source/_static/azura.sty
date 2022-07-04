@@ -246,38 +246,38 @@
 \makeatletter
 \renewcommand{\pysiglinewithargsret}[3]{%
   % overload macro in sig desc
-  \ifnum \value{siglevel} = 1 {%
     \ifnum \value{codelanguage} = 0 {% Python
-      \global\protected\def\sphinxbfcode##1{{\color{codeprop}\sphinxcode{##1}}}%
-      \global\expandafter\def\csname DUrolen\endcsname##1{\textcolor{codearg}{\sphinxcode{##1}}}%
+        \ifnum \value{siglevel} = 1 {%
+            \global\protected\def\sphinxbfcode##1{{\color{codeprop}\sphinxcode{##1}}}%
+        } \fi%
+        \global\expandafter\def\csname DUrolen\endcsname##1{\textcolor{codearg}{\sphinxcode{##1}}}%
     } \fi%
     \ifnum \value{codelanguage} = 1 {% C++
-      \global\protected\def\sphinxbfcode##1{{\color{codedefault}\sphinxcode{##1}}}%
+        \global\protected\def\sphinxbfcode##1{{\color{codedefault}\sphinxcode{##1}}}%
     } \fi%
-  } \fi%
-  % sig-box
-  \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
-  \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax%
-  \item[{\sigwrapbox{{\color{codedefault}\sphinxcode{#1(#2)#3}}}}]%
-  \leavevmode\par\nobreak\vskip-\parskip\prevdepth\dp\strutbox%
-  \let\sphinxbfcode\oldsphinxbfcode%
+    % sig-box
+    \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
+    \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax%
+    \item[{\sigwrapbox{{\color{codedefault}\sphinxcode{#1(#2)#3}}}}]%
+    \leavevmode\par\nobreak\vskip-\parskip\prevdepth\dp\strutbox%
+    \let\sphinxbfcode\oldsphinxbfcode%
 }
 \makeatother
 
 % C++ code
 \makeatletter
 \renewcommand{\pysigline}[1]{%
-  % overload macro in sig desc
-  \global\protected\def\sphinxbfcode##1{\sphinxcode{##1}}%
-  \global\expandafter\def\csname DUrolen\endcsname##1{\textcolor{codedefault}{\sphinxcode{##1}}}%
-  \global\expandafter\def\csname DUrolek\endcsname##1{\textcolor{codeprop}{\sphinxcode{##1}}}%
-  \global\expandafter\def\csname DUrolep\endcsname##1{\textcolor{codedefault}{\sphinxcode{##1}}}%
-  \global\expandafter\def\csname DUrolew\endcsname##1{\textcolor{codedefault}{\sphinxcode{##1}}}%
-  \global\expandafter\def\csname DUrolekt\endcsname##1{\textcolor{codetype}{\sphinxcode{##1}}}%
-  \global\expandafter\def\csname DUrolen,sig-param\endcsname##1{\textcolor{codearg}{\sphinxcode{##1}}}%
-  % sig-box
-  \py@argswidth=\dimexpr\linewidth+\labelwidth\relax\relax%
-  \item[{\sigwrapbox{{\color{codedefault}#1}}}]%
+    % overload macro in sig desc
+    \global\protected\def\sphinxbfcode##1{\sphinxcode{##1}}%
+    \global\expandafter\def\csname DUrolen\endcsname##1{\textcolor{codedefault}{\sphinxcode{##1}}}%
+    \global\expandafter\def\csname DUrolek\endcsname##1{\textcolor{codeprop}{\sphinxcode{##1}}}%
+    \global\expandafter\def\csname DUrolep\endcsname##1{\textcolor{codedefault}{\sphinxcode{##1}}}%
+    \global\expandafter\def\csname DUrolew\endcsname##1{\textcolor{codedefault}{\sphinxcode{##1}}}%
+    \global\expandafter\def\csname DUrolekt\endcsname##1{\textcolor{codetype}{\sphinxcode{##1}}}%
+    \global\expandafter\def\csname DUrolen,sig-param\endcsname##1{\textcolor{codearg}{\sphinxcode{##1}}}%
+    % sig-box
+    \py@argswidth=\dimexpr\linewidth+\labelwidth\relax\relax%
+    \item[{\sigwrapbox{{\color{codedefault}#1}}}]%
 }
 \makeatother
 

@@ -6,6 +6,10 @@
 Welcome to DoxySummary Example's documentation!
 ===============================================
 
+.. raw:: latex
+
+   \setcounter{codelanguage}{1}
+
 Example on a function, class and enum (enumvalue are not available).
 
 .. doxysummary::
