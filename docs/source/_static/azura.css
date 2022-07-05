@@ -156,6 +156,7 @@ html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-cont
 .sig.sig-object {
     font-family: 'Fira Code', monospace;
     font-size: 12px !important;
+    font-variant-ligatures: none;
     color: #555 !important;
 }
 
