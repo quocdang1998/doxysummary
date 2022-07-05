@@ -25,9 +25,7 @@ setup_args = {
 
     'packages': ['sphinx_doxysummary'],
     'package_dir': {'sphinx_doxysummary': 'sphinx_doxysummary'},
-    'package_data': {
-        'sphinx-doxysummary.templates': ['*.rst']
-    },
+    'include_package_data': True,
 
     'install_requires': ['sphinx', 'breathe', 'lxml'],
     'extras_require': {'example': 'sphinx-rtd-theme'},
