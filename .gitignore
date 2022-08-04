@@ -1,0 +1,14 @@
+# pychache
+sphinx_doxysummary/__pycache__
+
+# pip build directory
+build
+sphinx_doxysummary.egg-info
+
+# doc build directory
+docs/build
+
+# example build files
+example/xml
+example/source/generated/
+example/build

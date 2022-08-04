@@ -79,8 +79,6 @@ class DoxySummaryEntry:
         self.name = name
         self.scope = scope
         self.alias = alias
-        print(name)
-        print(alias)
 
     @property
     def fullname(self) -> str:

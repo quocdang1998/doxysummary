@@ -7,6 +7,7 @@ Created on Fri Jun 24 14:42:36 2022
 """
 
 import os
+import platform
 import re
 import shlex
 
@@ -188,6 +189,8 @@ class DoxySummary(SphinxDirective):
             file_name = fullname_to_filename(name, '')
             docname = os.path.join(tree_prefix, file_name)
             docname = os.path.normpath(os.path.join(dirname, docname))
+            if platform.system() == "Windows":
+                docname = docname.replace('\\', '/')
             docnames.append(docname)
 
         if docnames:
