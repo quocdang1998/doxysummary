@@ -16,10 +16,10 @@
 
     --background:                 hsl(var(--hue), 100%, 98%); /* background */
 
-    --link:                       hsl(var(--hue), 100%, 42%); /* link */
-    --visited-link:               hsl(var(--hue),  81%, 24%); /* visited link */
-    --highlighted:                hsl(var(--hue),  96%, 73%); /* hightlighted text */
-    --literal:                    hsl(var(--hue),  59%, 47%); /* literal text */
+    --link:                       hsl(var(--hue), 100%, 42%);  /* link */
+    --visited-link:               hsl(var(--hue),  81%, 24%);  /* visited link */
+    --highlighted:                hsl(var(--hue),  96%, 73%);  /* hightlighted text */
+    --literal:                    hsl(var(--hue),  59%, 47%);  /* literal text */
 
     --nav-title:                  hsl(var(--hue), 100%, 50%);  /* nav title */
     --nav-caption:                hsl(var(--hue),  97%, 61%);  /* nav caption */
@@ -39,6 +39,8 @@
     --admonition-background:      hsl(var(--hue),  30%, 95%);  /* admonition content background */
     --note:                       hsl(var(--hls),  80%, 60%);  /* note title */
     --warning:                    hsl(var(--hrv), 100%, 50%);  /* warning title */
+
+    --rtd-version:                hsl(var(--hue),  88%, 58%);  /* readthedocs version */
 }
 
 /* ============================================================================
@@ -258,4 +260,8 @@ html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-cont
 
 [data-ea-publisher].loaded, [data-ea-type].loaded {
     display: none !important;
+}
+
+.rst-versions .rst-current-version {
+    color: var(--rtd-version);
 }
