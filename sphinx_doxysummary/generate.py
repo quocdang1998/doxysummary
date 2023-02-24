@@ -219,7 +219,7 @@ def process_generate_files(app: Sphinx) -> None:
     doxysummaries: List[DoxySummaryEntry] = []
     for filename in genfiles:
         filename = os.path.join(app.env.srcdir, filename)
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8', errors='ignore') as f:
             # initialization of variables
             in_doxysummary = False
             base_indent = ''

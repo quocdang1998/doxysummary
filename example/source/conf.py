@@ -59,5 +59,6 @@ html_theme = 'sphinx_rtd_theme'
 
 breathe_projects = { "example": os.path.abspath("../xml/") }
 breathe_default_project = "example"
+breathe_show_include = True
 
 doxygen_xml = [breathe_projects[breathe_default_project]]
