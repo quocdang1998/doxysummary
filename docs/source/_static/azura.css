@@ -3,25 +3,74 @@
 ============================================================================ */
 
 /* import fonts */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+@font-face {
+    font-family: 'Nunito';
+    src: url("./Nunito-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: auto;
+}
+@font-face {
+    font-family: 'Nunito';
+    src: url("./Nunito-Italic.woff2") format("woff2");
+    font-weight: 400;
+    font-style: italic;
+    font-display: auto;
+}
+@font-face {
+    font-family: 'Nunito';
+    src: url("./Nunito-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: auto;
+}
+@font-face {
+    font-family: 'Nunito';
+    src: url("./Nunito-BoldItalic.woff2") format("woff2");
+    font-weight: 700;
+    font-style: italic;
+    font-display: auto;
+}
+@font-face {
+    font-family: 'FiraCode';
+    src: url("./FiraCode-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: auto;
+    font-variant-ligatures: none;
+}
+@font-face {
+    font-family: 'FiraCode';
+    src: url("./FiraCode-SemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: auto;
+    font-variant-ligatures: none;
+}
 
 /* custom colors */
 :root {
     --hue:                        207;  /* main hue color */
-    --hls:                        calc(var(--hue) -  5);  /* less hue */
+    --hls:                        calc(var(--hue) - 10);  /* less hue */
     --hmn:                        calc(var(--hue) + 10);  /* moderate hue*/
     --hpl:                        calc(var(--hue) + 15);  /* more hue*/
     --hrv:                        calc(var(--hue) + 180);  /* reverse hue */
 
-    --background:                 hsl(var(--hue), 100%, 98%); /* background */
+    --text-color:                 hsl(var(--hue),  10%, 25%);  /* text color */
+    --header-color:               hsl(var(--hue),  10%, 25%);  /* header color */
+    --content-background:         hsl(var(--hue),  10%, 99%);  /* background */
+    --background:                 hsl(var(--hue),  10%, 95%);  /* background */
+    --table-odd-row:              hsl(var(--hue),  14%, 96%);  /* table odd row */
+    --table-border:               hsl(var(--hue),  10%, 90%);  /* table border */
 
     --link:                       hsl(var(--hue), 100%, 42%);  /* link */
     --visited-link:               hsl(var(--hue),  81%, 24%);  /* visited link */
     --highlighted:                hsl(var(--hue),  96%, 73%);  /* hightlighted text */
     --literal:                    hsl(var(--hue),  59%, 47%);  /* literal text */
+    --literal-background:         hsl(var(--hue),  10%, 99%);  /* literal background */
+    --codeblock-background:       hsl(var(--hue),  10%, 97%);  /* codeblock background */
 
-    --nav-title:                  hsl(var(--hue), 100%, 50%);  /* nav title */
+    --nav-title:                  hsl(var(--hue), 100%, 40%);  /* nav title */
     --nav-caption:                hsl(var(--hue),  97%, 61%);  /* nav caption */
     --nav-background:             hsl(var(--hue),  24%, 23%);  /* navigation bar color */
     --nav-l1:                     hsl(var(--hue),  79%, 95%);  /* link level 1 */
@@ -31,14 +80,21 @@
 
     --itembox-background:         hsl(var(--hue),  79%, 95%);  /* item box background */
     --itembox-topborder:          hsl(var(--hue), 100%, 42%);  /* item topborder */
+    --itembox-text-color:         hsl(var(--hue),  10%, 25%);  /* item text color */
+    --subitem-background:         hsl(var(--hue),  10%, 94%);  /* subitem box background */
 
-    --keyword:                    hsl(var(--hpl), 100%, 50%);  /* keyworks of code language */
+    --item-name:                  hsl(var(--hue), 100%, 40%);  /* item name */
+    --attribute:                  hsl(var(--hue),  98%, 26%);  /* attribute */
+    --keyword:                    hsl(var(--hpl), 100%, 35%);  /* keyworks of code language */
     --inherited:                  hsl(var(--hpl),  59%, 47%);  /* interrnal reference to other classes */
     --type:                       hsl(var(--hmn),  53%, 55%);  /* type */
 
     --admonition-background:      hsl(var(--hue),  30%, 95%);  /* admonition content background */
     --note:                       hsl(var(--hls),  80%, 60%);  /* note title */
     --warning:                    hsl(var(--hrv), 100%, 50%);  /* warning title */
+
+    --codetabs-title:             hsl(var(--hmn), 100%, 50%);  /* code tabs title */
+    --codetabs-title-hover:       hsl(var(--hue), 100%, 70%);  /* hovered code tabs title */
 
     --rtd-version:                hsl(var(--hue),  88%, 58%);  /* readthedocs version */
 }
@@ -51,17 +107,24 @@
 body {
     margin:0;
     font-family: 'Nunito', sans-serif;
+    color: var(--text-color);
 }
 
 /* body background */
-.wy-body-for-nav {
+.wy-nav-content-wrap {
     background: var(--background);
 }
 
 /* content body width */
 .wy-nav-content {
-    max-width: 800px !important;
+    max-width: 850px !important;
     min-height: 100vh;
+    background: var(--content-background);
+}
+
+/* header color */
+.rst-content h1, .rst-content h2, .rst-content h3, .rst-content h4, .rst-content h5, .rst-content h6 {
+    color: var(--header-color);
 }
 
 /* link color */
@@ -87,7 +150,39 @@ body {
     white-space: normal;
     font-family: 'Fira Code', monospace;
     font-weight: 600;
+    font-size: 12px;
 }
+
+/* literal background */
+.rst-content code, .rst-content tt, code  {
+    background: var(--literal-background);
+    border-color: var(--table-border);
+}
+
+/* extent last column to 100% */
+.rst-content table.docutils td:last-child {
+    width: 100%;
+}
+
+/* table row odd */
+.rst-content table.docutils:not(.field-list) tr:nth-child(2n-1) td, .wy-table-backed, .wy-table-odd td, .wy-table-striped tr:nth-child(2n-1) td {
+    background-color: var(--table-odd-row);
+}
+
+/* Remove duplicated ":" */
+dl > dt.field-odd::after, dl > dt.field-even::after {
+    display: none;
+}
+
+/* Pygment code */
+.rst-content div[class^="highlight"], .rst-content pre.literal-block {
+    background: var(--codeblock-background);
+    color: var(--text-color);
+    border-color: var(--table-border);
+}
+
+/* footer */
+.btn, .btn-neutral {}
 
 /* ============================================================================
  NAVIGATION BAR + SEARCH RESULTS
@@ -117,6 +212,9 @@ body {
     font-weight: 700;
     background-color: var(--nav-l1-hover-background);
 }
+.wy-menu-vertical li.current a {
+    border-right:0px !important;
+}
 .wy-menu-vertical li.current > a, .wy-menu-vertical li.on a {
     font-weight: 700;
     background: var(--nav-l1-active-background);
@@ -126,6 +224,11 @@ body {
 }
 
 .wy-menu-vertical li.toctree-l2.current > a, .wy-menu-vertical li.toctree-l2.current li.toctree-l3 > a{
+    background: var(--nav-l23-background);
+}
+
+.wy-menu-vertical li.toctree-l3.current>a,
+.wy-menu-vertical li.toctree-l3.current li.toctree-l4>a {
     background: var(--nav-l23-background);
 }
 
@@ -144,6 +247,7 @@ body {
     background: var(--nav-title);
 }
 
+
 /* ============================================================================
  DESCRIPTION PAGE
 ============================================================================ */
@@ -159,14 +263,49 @@ html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-cont
     font-family: 'Fira Code', monospace;
     font-size: 12px !important;
     font-variant-ligatures: none;
-    color: #555 !important;
+    color: var(--itembox-text-color) !important;
+}
+
+html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) .descclassname {
+    font-family: 'Fira Code', monospace !important;
+    font-size: 12px !important;
+    font-variant-ligatures: none;
+}
+
+/* itembox text color */
+html.writer-html4 .rst-content dl:not(.docutils) .descclassname, html.writer-html4 .rst-content dl:not(.docutils) .descname, html.writer-html4 .rst-content dl:not(.docutils) .sig-name, html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) .descclassname, html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) .descname, html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) .sig-name {
+    color: var(--itembox-text-color);
+}
+
+/* subitem box */
+html.writer-html4 .rst-content dl:not(.docutils) dl:not(.field-list) > dt, html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) dl:not(.field-list) > dt {
+    background: var(--subitem-background);
+}
+
+/* subitem hyperlink */
+html.writer-html4 .rst-content dl:not(.docutils) dl:not(.field-list) > dt .headerlink, html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) dl:not(.field-list) > dt .headerlink {
+    color: black;
 }
 
 /* C++ DESCRIPTION */
 
 /* scope name + item name */
-.sig-prename.descclassname, .sig-name.descname {
+html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) .descname, html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple) .sig-name {
     font-family: 'Fira Code', monospace !important;
+}
+
+.sig.sig-object.cpp > .sig-name.descname > .n > * {
+    color: var(--item-name);
+}
+
+/* C++/CUDA attributes */
+.sig.sig-object.cpp > .pre {
+    color: var(--attribute);
+}
+
+/* Internal link as type */
+.sig.sig-object.cpp > a.reference.internal, .sig.sig-object.cpp > a.reference.internal:visited {
+    color: var(--type);
 }
 
 /* C++ keyword (class, enum, const, inline, etc) */
@@ -176,12 +315,12 @@ html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-cont
 }
 
 /* C++ name and scope of other objects */
-.sig.sig-object.cpp > .p, .sig.sig-object.cpp > .n:not(.sig-param) {
-    color: #000 !important;
+.sig.sig-object.cpp > .p, .sig.sig-object.cpp > .o, .sig.sig-object.cpp > .headerlink {
+    color: black !important;
 }
 
 /* C++ build-in type */
-.sig.sig-object.cpp .kt {
+.sig.sig-object.cpp .kt, .sig.sig-object.cpp > .n:not(.sig-param) {
     color: var(--type);
 }
 
@@ -189,11 +328,16 @@ html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-cont
 .std.std-ref {
     color: var(--literal);
     font-family: 'Fira Code', monospace;
-    font-size: 12px;
     font-weight: 600;
+    font-size: 12px;
 }
 
 /* Python DESCRIPTION */
+
+/* item name in description box */
+.sig.sig-object.py > .sig-name.descname > .pre {
+    color: var(--item-name);
+}
 
 /* item argument in description box */
 .sig.sig-object.py .n {
@@ -209,31 +353,37 @@ html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-cont
 /* Python operator (':', '=', etc) */
 .sig.sig-object.py .p, .sig.sig-object.py .o {
     font-style: normal !important;
+    color: black !important;
+}
+
+/* Python default value */
+.sig.sig-object.py .default_value {
+    font-style: normal !important;
 }
 
 /* type of each argument */
 .field-list.simple em {
     font-style: normal !important;
     font-family: 'Fira Code', monospace;
+    font-weight: 600;
     font-size: 12px;
-    font-weight: 600;
     color: var(--type);
-}
-
-/* return type */
-.return p {
-    color: var(--type);
-    font-family: 'Fira Code', monospace;
-    font-size: 12px !important;
-    font-weight: 600;
 }
 
 /* attribute type */
 .attributetype p {
     color: var(--type);
     font-family: 'Fira Code', monospace;
-    font-size: 12px !important;
     font-weight: 600;
+    font-size: 12px !important;
+}
+
+/* DUMMY envvar */
+
+/* item box */
+html.writer-html4 .rst-content dl:not(.docutils) > dt, html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.citation):not(.glossary):not(.simple) > dt {
+    background: var(--itembox-background);
+    border-top: 3px solid var(--itembox-topborder);
 }
 
 /* ============================================================================
@@ -255,13 +405,23 @@ html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-cont
 }
 
 /* ============================================================================
+ CODE TABS
+============================================================================ */
+
+.sd-tab-set > input:checked + label {
+    border-color: var(--codetabs-title);
+    color: var(--codetabs-title);
+}
+
+.sd-tab-set > input:not(:checked) + label:hover {
+    color: var(--codetabs-title-hover);
+    border-color: var(--codetabs-title-hover);
+}
+
+/* ============================================================================
  READ THE DOCS
 ============================================================================ */
 
 [data-ea-publisher].loaded, [data-ea-type].loaded {
     display: none !important;
-}
-
-.rst-versions .rst-current-version {
-    color: var(--rtd-version);
 }
