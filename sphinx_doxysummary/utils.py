@@ -10,10 +10,24 @@ import re
 
 from typing import Any, Dict, List, Tuple, Set
 
-from sphinx.domains.cpp import _keywords
-
 from lxml import etree
 
+keywords = [
+    'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
+    'bool', 'break', 'case', 'catch', 'char', 'char8_t', 'char16_t', 'char32_t',
+    'class', 'compl', 'concept', 'const', 'consteval', 'constexpr', 'constinit',
+    'const_cast', 'continue',
+    'decltype', 'default', 'delete', 'do', 'double', 'dynamic_cast', 'else',
+    'enum', 'explicit', 'export', 'extern', 'false', 'float', 'for', 'friend',
+    'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace', 'new',
+    'noexcept', 'not', 'not_eq', 'nullptr', 'operator', 'or', 'or_eq',
+    'private', 'protected', 'public', 'register', 'reinterpret_cast',
+    'requires', 'return', 'short', 'signed', 'sizeof', 'static',
+    'static_assert', 'static_cast', 'struct', 'switch', 'template', 'this',
+    'thread_local', 'throw', 'true', 'try', 'typedef', 'typeid', 'typename',
+    'union', 'unsigned', 'using', 'virtual', 'void', 'volatile', 'wchar_t',
+    'while', 'xor', 'xor_eq',
+]
 
 def tokenize_arg(argument: str) -> List[Set[str]]:
     """Split a C++ argument into its components.
@@ -107,7 +121,7 @@ def compare_type(arg1: str, arg2: str) -> bool:
         else:
             last_arg = last_arg.pop()
             # check if last_arg obey variable name rule
-            if last_arg in _keywords or not re.match('^[\w_][\w\d_]*', last_arg):
+            if last_arg in keywords or not re.match('^[\w_][\w\d_]*', last_arg):
                 return False
 
     min_num = min(len(tokens1), len(tokens2))
@@ -125,7 +139,7 @@ def compare_type(arg1: str, arg2: str) -> bool:
                 difference = tokens2[i] - tokens1[i]
             if len(difference) == 1:
                 last_arg = difference.pop()
-                if last_arg in _keywords or not re.match('^[\w_][\w\d_]*', last_arg):
+                if last_arg in keywords or not re.match('^[\w_][\w\d_]*', last_arg):
                     return False
                 else:
                     if diff_from_token1:
