@@ -37,6 +37,13 @@ Example on a template function and template class.
    template_func
    TemplateClass
 
+Example of concept (from C++20).
+
+.. doxysummary::
+   :toctree: generated
+
+   Incrementable
+
 Example of a variable and a function inside a namespace.
 
 .. doxysummary::
@@ -52,6 +59,7 @@ Example of aliasing.
    :toctree: generated
 
    example::a_long_named_function_for_testing_alias "short_name"
+
 
 Example of function overloading
 

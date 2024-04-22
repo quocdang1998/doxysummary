@@ -100,6 +100,12 @@ class TemplateClass {
     T c_;
 };
 
+/** @brief A concept.*/
+template<typename T>
+concept Incrementable = requires(T a) {
+    { ++a } -> std::same_as<T>;
+};
+
 namespace example {
 
 /** @brief A scoped (namespace) varaible.*/

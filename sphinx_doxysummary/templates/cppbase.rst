@@ -17,6 +17,7 @@
    :undoc-members:
 {% endif %}
 
+
 {%- if function -%}
 .. doxygenfunction:: {{ fullname }}
 {% endif %}
@@ -39,6 +40,10 @@
 
 {%- if define -%}
 .. doxygendefine:: {{ fullname }}
+{% endif %}
+
+{%- if concept -%}
+.. doxygenconcept:: {{ fullname }}
 {% endif %}
 
 {%- if union -%}
