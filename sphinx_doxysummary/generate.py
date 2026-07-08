@@ -291,6 +291,7 @@ def process_generate_files(app: Sphinx) -> None:
             keys['objname'] = doxysummary.alias
         else:
             keys['objname'] = fullname
+        keys['objname'] = rst.escape(keys['objname'])
         keys['module'] = "::".join(fullname.split("::")[:-1])
         keys['fullname'] = fullname
         keys['underline'] = len(keys['objname']) * '='

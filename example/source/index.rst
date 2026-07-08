@@ -53,6 +53,14 @@ Example of a variable and a function inside a namespace.
    scoped_variable
    scoped_function
 
+Example of a function using namespace.
+
+.. doxysummary::
+   :toctree: generated
+
+   example::Example
+   example::a_function(Example&) "example::a_function(example::Example&)"
+
 Example of aliasing.
 
 .. doxysummary::
@@ -61,16 +69,36 @@ Example of aliasing.
    example::a_long_named_function_for_testing_alias "short_name"
 
 
-Example of function overloading
+Example of function overloading.
 
 .. doxysummary::
    :toctree: generated
 
-   func_overload(void) "func_overload_void"
-   func_overload(int) "func_overload_int"
-   func_overload(double,double) "func_overload_double_double"
-   func_overload(const double &) "func_overload_const_double_&"
-   func_overload(double &&) "func_overload_double_&&"
-   func_overload(std::vector<double> &) "func_overload_std::vector<double>_&"
+   func_overload(void)
+   func_overload(int)
+   func_overload(long)
+   func_overload(int\*)
+   func_overload(int\*\*)
+   func_overload(double\* const)
+   func_overload(const volatile double\*)
+   func_overload(double,double)
+   func_overload(const double&)
+   func_overload(const double*&)
+   func_overload(double&&)
+   func_overload(int(&)[3])
+   func_overload(int(\*)(double))
+   func_overload(int example::Example::*)
+   func_overload(std::vector<double>&)
+   func_overload(std::vector<int[3]>&)
+   func_overload(std::initializer_list<int>)
 
+.. note::
+
+    - Avoid spaces for long declaration. Otherwise, a linebreak may be inserted automatically.
+    - Pointers ``*`` must be protected with a backslash ``\*``, e.g. ``f(int*)`` must be declared
+      as ``f(int\*)``.
+    - ``noexcept``, pre/post condition assertions specifier must be omitted because it is not part of function overloading
+      specifications.
+    - If function declaration is ``f(void)``, directive argument can be either ``f()`` or
+      ``f(void)``. However, if the declaration is ``f()``, RST directive must be ``f()``.
 

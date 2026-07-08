@@ -10,6 +10,6 @@ This module contains util functions.
 
    ~sphinx_doxysummary.utils.tokenize_arg
    ~sphinx_doxysummary.utils.compare_type
-   ~sphinx_doxysummary.utils.getFisrtChildByTagName
+   ~sphinx_doxysummary.utils.get_first_child_by_tag_name
    ~sphinx_doxysummary.utils.split_name
    ~sphinx_doxysummary.utils.fullname_to_filename

@@ -16,7 +16,7 @@ from sphinx.application import Sphinx
 from xml.dom.minidom import parse
 from lxml import etree
 
-from sphinx_doxysummary.utils import getFisrtChildByTagName, compare_type
+from sphinx_doxysummary.utils import compare_type, get_first_child_by_tag_name
 
 class DoxygenItem:
     """Item read from Doxygen generated xml.
@@ -61,6 +61,7 @@ class DoxygenItem:
         # initialize default attributes
         self.summary = ''
         self.args: List[Tuple[str, str]] = None
+        self.argsstring: str = ''
         self.return_type: str = ''
         self.overloaded: bool = False
 
@@ -113,6 +114,12 @@ class DoxygenItem:
             raise ValueError('Cannot set argument for non function type')
         self.args = args
 
+    def set_argsstring(self, argsstring: str):
+        """Set raw Doxygen argument string if the item is a function."""
+        if self.kind != 'function':
+            raise ValueError('Cannot set argument string for non function type')
+        self.argsstring = argsstring
+
     def set_return_type(self, return_type: str):
         """Set return type of the item if the item is a function.
 
@@ -155,7 +162,7 @@ class DoxygenItem:
             return False
         for arg, xml_arg in zip(args, self.args):
             xml_arg_copy = ' '.join(xml_arg)
-            if not compare_type(arg, xml_arg_copy):
+            if not compare_type(arg, xml_arg_copy, self.argsstring):
                 return False
         return True
 
@@ -208,8 +215,7 @@ def process_generate_xmltree(app: Sphinx) -> None:
                 raise ValueError('Cannot detect the compound')
             compound_name = compound.firstChild
             if compound_name.tagName != 'name':
-                raise ValueError('Expected first child of "compound" '
-                                 'tagged "name"')
+                raise ValueError('Expected first child of "compound" tagged "name"')
             compound_name = compound_name.firstChild.data
             index_data[refid] = DoxygenItem(refid=refid, name=compound_name, kind=compound_kind)
 
@@ -240,7 +246,7 @@ def process_generate_xmltree(app: Sphinx) -> None:
                     itemdef = itemdef[0]
                     # step3.1: get item summary
                     # get brief description
-                    brief = getFisrtChildByTagName(itemdef, 'briefdescription')[0]
+                    brief = get_first_child_by_tag_name(itemdef, 'briefdescription')[0]
                     paragraph = brief.getchildren()
                     if paragraph:
                         summary = brief.getchildren()[0].xpath("string()")
@@ -250,7 +256,7 @@ def process_generate_xmltree(app: Sphinx) -> None:
                     # in case of an empty brief descrip[tion, use detailed
                     # description instead
                     if summary == '':
-                        detail = getFisrtChildByTagName(itemdef, 'detaileddescription')[0]
+                        detail = get_first_child_by_tag_name(itemdef, 'detaileddescription')[0]
                         paragraph = detail.getchildren()
                         if paragraph:
                             summary = paragraph[0].xpath("string()")
@@ -261,7 +267,9 @@ def process_generate_xmltree(app: Sphinx) -> None:
 
                     # step3.2: get argument and return type if kind is 'function'
                     if index_data[refid].kind == 'function':
-                        params = getFisrtChildByTagName(itemdef, 'param')
+                        argsstring = get_first_child_by_tag_name(itemdef, 'argsstring')
+                        index_data[refid].set_argsstring(argsstring[0].xpath("string()"))
+                        params = get_first_child_by_tag_name(itemdef, 'param')
                         arguments: List[Tuple[str, str]] = []  # args of func
                         if len(params) == 0:  # empty argument list
                             index_data[refid].set_args([('void', '')])
@@ -277,7 +285,7 @@ def process_generate_xmltree(app: Sphinx) -> None:
                             arguments.append((argtype, argname))
                         index_data[refid].set_args(arguments)
                         # get return type
-                        return_type = getFisrtChildByTagName(itemdef, 'type')
+                        return_type = get_first_child_by_tag_name(itemdef, 'type')
                         return_type = return_type[0].xpath("string()")
                         index_data[refid].set_return_type(return_type)
 

@@ -39,6 +39,30 @@ def unescape_rst(item_name: str) -> str:
     return re.sub(r'\\([\\`*{}[\]()#+\-.!_<>|&])', r'\1', item_name)
 
 
+def normalize_declarator_args(args: str) -> str:
+    r"""Normalize C++ argument strings for declarator-heavy comparisons.
+
+    Examples
+    --------
+    >>> normalize_declarator_args('(int(&a)[3])')
+    'int(&)[3]'
+    >>> normalize_declarator_args('(int(*callback)(double))')
+    'int(*)(double)'
+    >>> normalize_declarator_args('(int example::Example::*member)')
+    'intexample::Example::*'
+    >>> normalize_declarator_args(r'(int\*)')
+    'int*'
+    """
+    args = unescape_rst(args).strip()
+    if args.startswith('(') and args.endswith(')'):
+        args = args[1:-1]
+    args = ''.join(args.split())
+    args = re.sub(r'([*&])[_a-zA-Z]\w*(?=\))', r'\1', args)
+    args = re.sub(r'(?<=\))[_a-zA-Z]\w+$', '', args)
+    args = re.sub(r'(::\*)[_a-zA-Z]\w*', r'\1', args)
+    return args
+
+
 def tokenize_arg(argument: str) -> List[Set[str]]:
     """Split a C++ argument into its components.
     
@@ -66,8 +90,10 @@ def tokenize_arg(argument: str) -> List[Set[str]]:
     # step1: preprocessing
     # remove default argument value
     arg = argument.rsplit('=', maxsplit=1)[0]
-    # remove space around scope(::) and template operator(<>)
-    arg = ''.join([temp.strip() for temp in re.split('([:<>][:]*)', arg)])
+    # remove space around scope(::) and inside template brackets
+    arg = re.sub(r'\s*::\s*', '::', arg)
+    arg = re.sub(r'\s*<\s*', '<', arg)
+    arg = re.sub(r'\s*>', '>', arg)
     # step2: split
     # split by special character (not a character, digit, space, ':' or '<''>')
     # if that character is not in between '<' and '>'
@@ -84,7 +110,7 @@ def tokenize_arg(argument: str) -> List[Set[str]]:
     return result
 
 
-def compare_type(arg1: str, arg2: str) -> bool:
+def compare_type(arg1: str, arg2: str, arg2_declarator: str = '') -> bool:
     """Check if type of 2 arguments are the same.
     
     Parameters
@@ -93,6 +119,10 @@ def compare_type(arg1: str, arg2: str) -> bool:
         First argument.
     arg2: str
         Second argument.
+    arg2_declarator: str, optional
+        Full declarator of the second argument. This is useful for declarations
+        whose array bounds or argument name are outside Doxygen's ``type`` XML
+        node.
     
     Return
     ------
@@ -109,30 +139,61 @@ def compare_type(arg1: str, arg2: str) -> bool:
     True
     >>> compare_type('std::vector<const double *> &', 'std::vector<double const> &')  # template
     False
+    >>> compare_type('int(&)[3]', 'int(&) a', 'int(&a)[3]')
+    True
+    >>> compare_type('int(*)(double)', 'int(*)(double) callback')
+    True
     >>> compare_type('void', '')
     True
     """
+    def compare_declarator() -> bool:
+        """Patch for array declaration."""
+        return (normalize_declarator_args(arg1) ==
+                normalize_declarator_args(arg2_declarator or arg2))
+
+    def is_arg_name(token: str) -> bool:
+        return (token not in keywords and
+                re.match('^[\w_][\w\d_]*', token) is not None)
+
+    def remove_arg_name(token_set: Set[str]) -> bool:
+        if len(token_set) != 1:
+            return False
+        arg_name = next(iter(token_set))
+        if not is_arg_name(arg_name):
+            return False
+        token_set.remove(arg_name)
+        return True
+
+    def remove_last_arg_name(tokens: List[Set[str]]) -> bool:
+        return remove_arg_name(tokens[-1])
+
+    def remove_arg_name_difference(tokens1: Set[str], tokens2: Set[str]) -> None:
+        if tokens1 - tokens2:
+            difference = tokens1 - tokens2
+            target = tokens1
+        else:
+            difference = tokens2 - tokens1
+            target = tokens2
+        if len(difference) == 1:
+            arg_name = next(iter(difference))
+            if is_arg_name(arg_name):
+                target.remove(arg_name)
+
     tokens1 = tokenize_arg(arg1)
     tokens2 = tokenize_arg(arg2)
 
     # special treatment for the last token, because it may hold argname
     # if length of 2 tokens are too far apart --> False
     if abs(len(tokens1) - len(tokens2)) > 1:
-        return False
+        return compare_declarator()
     if len(tokens1) != len(tokens2):  # differ by 1 token (argument name)
         # find the last args token
         if len(tokens1) < len(tokens2):
-            last_arg = tokens2[-1]
+            longer_tokens = tokens2
         else:
-            last_arg = tokens1[-1]
-        # if differ more than 1 item -> False
-        if len(last_arg) > 1:
-            return False
-        else:
-            last_arg = last_arg.pop()
-            # check if last_arg obey variable name rule
-            if last_arg in keywords or not re.match('^[\w_][\w\d_]*', last_arg):
-                return False
+            longer_tokens = tokens1
+        if not remove_last_arg_name(longer_tokens):
+            return compare_declarator()
 
     min_num = min(len(tokens1), len(tokens2))
     for i in range(min_num):
@@ -141,26 +202,12 @@ def compare_type(arg1: str, arg2: str) -> bool:
         # if 2 tokens are different
         #1. check if argname in the last item
         if i == min_num-1:
-            if tokens1[i] - tokens2[i]:
-                diff_from_token1 = True
-                difference = tokens1[i] - tokens2[i]
-            else:
-                diff_from_token1 = False
-                difference = tokens2[i] - tokens1[i]
-            if len(difference) == 1:
-                last_arg = difference.pop()
-                if last_arg in keywords or not re.match('^[\w_][\w\d_]*', last_arg):
-                    return False
-                else:
-                    if diff_from_token1:
-                        tokens1[i].remove(last_arg)
-                    else:
-                        tokens2[i].remove(last_arg)
+            remove_arg_name_difference(tokens1[i], tokens2[i])
         #2. tokenize template and compare
         token1 = sorted(tokens1[i])
         token2 = sorted(tokens2[i])
         if len(token1) != len(token2):
-            return False
+            return compare_declarator()
         for t1, t2 in zip(token1, token2):
             if t1 == t2:
                 continue
@@ -180,11 +227,11 @@ def compare_type(arg1: str, arg2: str) -> bool:
                     if not compare_type(tparam1, tparam2):
                         return False
             else:
-                return False
+                return compare_declarator()
     return True
 
 
-def getFisrtChildByTagName(element: etree._Element, tag: str) -> List[etree._Element]:
+def get_first_child_by_tag_name(element: etree._Element, tag: str) -> List[etree._Element]:
     """Search the first child of XML element by tagname.
 
     Parameters

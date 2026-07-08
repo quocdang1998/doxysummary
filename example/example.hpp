@@ -117,6 +117,13 @@ void scoped_function (int x);
 /** @brief This is a function with a long name, but alias shortens the name.*/
 int a_long_named_function_for_testing_alias (void);
 
+class Example {
+    int x;
+};
+
+/** @brief A function taking example class. */
+void a_function (Example& x);
+
 }
 
 /** @brief Argument is a void.*/
@@ -125,15 +132,47 @@ int func_overload (void);
 /** @brief Argument is an integer.*/
 int func_overload(int a);
 
+/** @brief Argument is a long integer with noexcept specifier.*/
+int func_overload(long a) noexcept;
+
+/** @brief Argument is an integer pointer.*/
+int func_overload(int* a);
+
+/** @brief Argument is a pointer to pointer. */
+int func_overload(int** a);
+
+/** @brief Argument is a constant pointer. */
+int func_overload(double * const a);
+
+/** @brief Argument is a pointer to const volatile. */
+int func_overload(const volatile double * a);
+
 /** @brief Arguments are two real numbers.*/
 int func_overload(double x, double y);
 
 /** @brief Argument is a constant l-value.*/
 int func_overload(const double & x);
 
+/** @brief Argument is a reference of a pointer to constant.*/
+int func_overload(const double * & x);
+
 /** @brief Argument is an r-value.*/
 int func_overload(double && x);
+
+/** @brief Argument is a reference to array. */
+int func_overload(int (&a)[3]);
+
+/** @brief Argument is a function pointer. */
+int func_overload(int (*callback)(double));
+
+/** @brief Argument is a pointer to member. */
+int func_overload(int example::Example::* member);
 
 /** @brief Argument is a template std::vector.*/
 int func_overload(std::vector<double> & v);
 
+/** @brief Argument is a template std::vector of arrays. */
+int func_overload(std::vector<int[3]> & v);
+
+/** @brief Argument is an initializer list. */
+int func_overload(std::initializer_list<int> values);
