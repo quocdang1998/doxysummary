@@ -22,7 +22,7 @@ copyright = '2022, quocdang1998'
 author = 'quocdang1998'
 
 # The full version, including alpha/beta/rc tags
-release = '2.3.4'
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------

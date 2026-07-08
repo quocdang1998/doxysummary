@@ -22,7 +22,7 @@ copyright = '2022, quocdang1998'
 author = 'quocdang1998'
 
 # The full version, including alpha/beta/rc tags
-release = '2.3.2'
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -71,7 +71,7 @@ latex_engine = 'xelatex'
 latex_additional_files = ['_static/azura.sty',  # '_static/logo.pdf',
                           '_static/azura.pdf', '_static/LeagueSpartan.otf',
                           '_static/FiraCode.ttf', '_static/FiraCode-SemiBold.ttf',
-                          '_static/ChunkFive.ttf', '_static/CocoGoose.ttf']
+                          '_static/LilitaOne.ttf', '_static/CocoGoose.ttf']
 latex_elements = {
     'papersize': 'a4paper',
     'passoptionstopackages': r'\PassOptionsToPackage{explicit}{titlesec}',
@@ -84,4 +84,4 @@ latex_elements = {
     'preamble': r'\usepackage{azura}',
     'makeindex': r'\usepackage[columns=1]{idxlayout}\makeindex'
 }
-
+latex_use_xindy = False

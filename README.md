@@ -89,8 +89,8 @@ items.
        Orange  # as same as fruit::Orange
     ```
 
-From version 1.2.0, user can customize the displayed name of the item in the
-autosummary table with aliasing:
+User can customize the displayed name of the item in the autosummary table
+with aliasing:
 ```reStructuredText
 .. doxysummary::
    :toctree: generated
@@ -102,7 +102,7 @@ autosummary table with aliasing:
 
 **Note**: Alias containing space is not recommended.
 
-New in version 2.2.0: function overloading is officially supported.
+Function overloading is supported:
 ```reStructuredText
 .. doxysummary::
    :toctree: generated
@@ -110,4 +110,10 @@ New in version 2.2.0: function overloading is officially supported.
    func_overload()
    func_overload(int a) "func_overload(int)"
    func_overload(char,char)
-   func_overload(std::vector<double>)
+   func_overload(const std::vector<double>&)
+   func_overload(double&&)
+   func_overload(long\*)
+   func_overload(int (&)[3])
+   func_overload(int(\*)(double))
+   func_overload(int MyClass::*)
+```
