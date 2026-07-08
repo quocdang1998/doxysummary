@@ -25,7 +25,7 @@ from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.typing import OptionSpec
 
 from sphinx_doxysummary.xmltree import xml_tree, DoxygenItem
-from sphinx_doxysummary.utils import split_name, fullname_to_filename
+from sphinx_doxysummary.utils import split_name, fullname_to_filename, unescape_rst
 
 class DoxySummary(SphinxDirective):
     """
@@ -80,7 +80,7 @@ class DoxySummary(SphinxDirective):
         for x in self.content:
             # if not empty line
             if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0]):
-                name = re.search(item_regex, x).group(1).strip()
+                name = unescape_rst(re.search(item_regex, x).group(1).strip())
 
                 # check if name starts with a ~
                 ignore_parent: bool = False
@@ -160,20 +160,21 @@ class DoxySummary(SphinxDirective):
 
         # add each line to table with description
         for name, displayname in zip(names, displaynames):
+            _, item_name, func_args = split_name(name)
+            kind = xml_tree[item_name][0].kind
             qualifier = 'cpp:any'
+            linkname = name
             # "define" macros is not included in role cpp:any
-            if xml_tree[split_name(name)[1]][0].kind == 'define':
+            if kind == 'define':
                 qualifier = 'c:macro'
-            if len(xml_tree[split_name(name)[1]]) > 1:
+            elif kind == 'function':
                 qualifier = 'cpp:func'
-                linkname = restype[name] + ' ' + name
-            else:
-                linkname = name
+                if func_args:
+                    linkname = restype[name] + ' ' + name
             # get description (summary)
             desc = descs[name]
             # if name are template -> add backslash before '<' and '>'
-            displayname = displayname.replace('<', '\<').replace('>', '\>')
-            name = name.replace('<', '\<').replace('>', '\>')
+            displayname = displayname.replace('<', r'\<').replace('>', r'\>')
             col1 = ':%s:`%s <%s>`' % (qualifier, displayname, linkname)
             append_row(col1, desc)
 

@@ -23,7 +23,7 @@ from sphinx.util import logging, rst
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
-from sphinx_doxysummary.utils import split_name, fullname_to_filename
+from sphinx_doxysummary.utils import split_name, fullname_to_filename, unescape_rst
 from sphinx_doxysummary.xmltree import xml_tree
 
 logger = logging.getLogger(__name__)
@@ -247,7 +247,7 @@ def process_generate_files(app: Sphinx) -> None:
 
                     m = items_arg_re.match(line)  # read items
                     if m:
-                        name = m.group(1).strip()
+                        name = unescape_rst(m.group(1).strip())
                         if name[0] == '~':
                             name = name[1:]
                         doxysummary_args['name'] = ''.join(split_name(name)[1:])

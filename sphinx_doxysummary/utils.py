@@ -29,6 +29,16 @@ keywords = [
     'while', 'xor', 'xor_eq',
 ]
 
+def unescape_rst(item_name: str) -> str:
+    r"""Remove reStructuredText escaping from item names.
+
+    Doxysummary entries sometimes need escapes for C++ symbols that are also
+    meaningful to reStructuredText, for example ``int\*``.  Doxygen and Breathe
+    expect the original C++ spelling.
+    """
+    return re.sub(r'\\([\\`*{}[\]()#+\-.!_<>|&])', r'\1', item_name)
+
+
 def tokenize_arg(argument: str) -> List[Set[str]]:
     """Split a C++ argument into its components.
     
@@ -271,14 +281,16 @@ def fullname_to_filename(item_name: str, suffix: str):
     str
         Name of the file.
     """
-    file_name = item_name
+    file_name = unescape_rst(item_name)
     file_name = file_name.replace('::', '.')  # avoid ':' in scope
     file_name = file_name.replace('(', '6')  # avoid '('
     file_name = file_name.replace(')', '9')  # avoid ')'
     file_name = file_name.replace('<', '4')  # avoid '<'
     file_name = file_name.replace('>', '7')  # avoid '>'
+    file_name = file_name.replace('*', '_ptr_')  # avoid '*' in pointers
     file_name = file_name.replace('&', '_amp_')  # avoid '&'
-    file_name = file_name.replace(' ', '-')  # avoid '&'
+    file_name = file_name.replace('\\', '')  # avoid backslash path separators
+    file_name = file_name.replace(' ', '-')  # avoid spaces
 
     return file_name + suffix
 
